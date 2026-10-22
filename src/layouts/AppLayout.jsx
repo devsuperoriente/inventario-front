@@ -1,7 +1,15 @@
 import Sidebar from './Sidebar.jsx'
 import Topbar from './Topbar.jsx'
 
-function AppLayout({ modules, activeModule, onModuleChange, children }) {
+function AppLayout({
+  modules,
+  activeModule,
+  onModuleChange,
+  user,
+  onLogout,
+  logoutError,
+  children,
+}) {
   const activeLabel = modules.find((module) => module.id === activeModule)?.label
 
   return (
@@ -12,7 +20,12 @@ function AppLayout({ modules, activeModule, onModuleChange, children }) {
         onModuleChange={onModuleChange}
       />
       <div className="workspace">
-        <Topbar currentSection={activeLabel} />
+        <Topbar
+          currentSection={activeLabel}
+          user={user}
+          onLogout={onLogout}
+          logoutError={logoutError}
+        />
         <main className="page-content">{children}</main>
       </div>
     </div>

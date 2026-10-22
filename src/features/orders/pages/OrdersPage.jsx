@@ -3,6 +3,8 @@ import EmptyState from '../../../components/feedback/EmptyState.jsx'
 import Toast from '../../../components/feedback/Toast.jsx'
 import Modal from '../../../components/ui/Modal.jsx'
 import PageHeading from '../../../components/ui/PageHeading.jsx'
+import { useAuth } from '../../../auth/useAuth.js'
+import { getClients } from '../../clients/services/clientsApi.js'
 import { getProducts } from '../../products/services/productsApi.js'
 import DeleteOrderModal from '../components/DeleteOrderModal.jsx'
 import OrderFilters from '../components/OrderFilters.jsx'
@@ -28,11 +30,15 @@ function getOrderId(detail) {
 }
 
 function getOrderLabel(order) {
-  return order.numberOrder ?? order.orderNumber ?? `#${order.id}`
+  return order.numberOrder ?? `#${order.id}`
 }
 
 function OrdersPage() {
+  const { user } = useAuth()
   const [orders, setOrders] = useState([])
+  const [clients, setClients] = useState([])
+  const [clientsLoading, setClientsLoading] = useState(false)
+  const [clientsError, setClientsError] = useState('')
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
   const [search, setSearch] = useState('')
@@ -65,9 +71,11 @@ function OrdersPage() {
       const ordersData = await getOrders()
       setOrders(ordersData)
       setLoadError(null)
+      return ordersData
     } catch (error) {
       console.error('Error al cargar pedidos:', error)
       setLoadError(error.message)
+      return null
     } finally {
       setLoading(false)
     }
@@ -102,6 +110,8 @@ function OrdersPage() {
       order.numberOrder,
       order.orderNumber,
       order.dateOrder?.slice(0, 10),
+      order.client?.name,
+      order.clientName,
     ].some((value) => String(value ?? '').toLocaleLowerCase().includes(normalizedSearch)))
   }, [orders, search])
 
@@ -109,6 +119,10 @@ function OrdersPage() {
     () => new Map(products.map((product) => [String(product.id), product])),
     [products],
   )
+  const selectedClientName = selectedOrder?.client?.name ?? selectedOrder?.clientName
+  const detailsDescription = selectedOrder
+    ? `${selectedClientName ? `Cliente: ${selectedClientName}. ` : ''}Fecha del pedido: ${selectedOrder.dateOrder?.slice(0, 10) || '—'}. Administra los productos y cantidades solicitados.`
+    : ''
 
   async function loadOrderDetails(order) {
     const requestId = detailRequestId.current + 1
@@ -124,9 +138,11 @@ function OrdersPage() {
 
       setDetails(allDetails.filter((detail) => String(getOrderId(detail)) === String(order.id)))
       setProducts(productList)
+      return productList.length > 0
     } catch (error) {
       console.error('Error al cargar el detalle del pedido:', error)
       if (detailRequestId.current === requestId) setDetailsError(error.message)
+      return false
     } finally {
       if (detailRequestId.current === requestId) setDetailsLoading(false)
     }
@@ -139,6 +155,8 @@ function OrdersPage() {
 
     try {
       const wasEditing = Boolean(editingOrder)
+      const existingOrderIds = new Set(orders.map((order) => String(order.id)))
+      let createdOrder
       if (editingOrder) {
         await updateOrder(editingOrder.id, formData)
         setSelectedOrder((currentOrder) =>
@@ -147,17 +165,44 @@ function OrdersPage() {
             : currentOrder,
         )
       } else {
-        await createOrder(formData)
+        createdOrder = await createOrder(formData)
       }
 
       setFormOpen(false)
       setEditingOrder(null)
       setLoading(true)
-      await fetchOrders()
-      setToast({
-        type: 'success',
-        message: wasEditing ? 'Pedido actualizado correctamente.' : 'Pedido creado. Ahora puedes agregar sus productos.',
-      })
+      const refreshedOrders = await fetchOrders()
+
+      if (wasEditing) {
+        setToast({ type: 'success', message: 'Pedido actualizado correctamente.' })
+      } else {
+        const orderForDetails = createdOrder?.id
+          ? createdOrder
+          : refreshedOrders?.find((order) => (
+            !existingOrderIds.has(String(order.id))
+            && String(order.clientId ?? order.client?.id) === String(formData.clientId)
+          ))
+
+        if (orderForDetails?.id) {
+          const selectedClient = clients.find(
+            (client) => String(client.id) === String(formData.clientId),
+          )
+          const hasProducts = await loadOrderDetails({
+            ...orderForDetails,
+            client: orderForDetails.client ?? selectedClient,
+          })
+          if (hasProducts) {
+            setEditingDetail(null)
+            setDetailFormError(null)
+            setDetailFormOpen(true)
+          }
+        } else {
+          setToast({
+            type: 'warning',
+            message: 'Pedido creado, pero no se pudo abrir su detalle automáticamente. Búscalo en la lista para agregar productos.',
+          })
+        }
+      }
     } catch (error) {
       console.error('Error al guardar pedido:', error)
       setFormError(error.message)
@@ -166,16 +211,32 @@ function OrdersPage() {
     }
   }
 
-  function openCreateForm() {
+  async function loadClientsForOrder() {
+    setClientsLoading(true)
+    setClientsError('')
+    try {
+      const clientsData = await getClients()
+      setClients(clientsData)
+    } catch (error) {
+      console.error('Error al cargar clientes para el pedido:', error)
+      setClientsError(`No se pudieron cargar los clientes: ${error.message}`)
+    } finally {
+      setClientsLoading(false)
+    }
+  }
+
+  async function openCreateForm() {
     setEditingOrder(null)
     setFormError(null)
     setFormOpen(true)
+    await loadClientsForOrder()
   }
 
-  function openEditForm(order) {
+  async function openEditForm(order) {
     setEditingOrder(order)
     setFormError(null)
     setFormOpen(true)
+    await loadClientsForOrder()
   }
 
   async function handleDeleteOrder() {
@@ -200,11 +261,11 @@ function OrdersPage() {
       setToast({ type: 'success', message: 'Pedido eliminado correctamente.' })
     } catch (error) {
       console.error('Error al eliminar pedido:', error)
-      const message = `No se pudo eliminar el pedido. ${error.message}`
+      const message = `No se pudo eliminar el pedido.`
       setDeleteError(message)
       setToast({
         type: 'warning',
-        message: `${message} Si tiene productos asociados, elimina primero sus detalles.`,
+        message: 'Antes de continuar, elimine los productos asociados a este registro.',
       })
     } finally {
       setDeletingId(null)
@@ -321,7 +382,7 @@ function OrdersPage() {
         ) : orders.length === 0 ? (
           <EmptyState
             title="Aún no hay pedidos"
-            description="Crea un pedido con su número y fecha. Después podrás agregar los productos solicitados."
+            description="Crea un pedido con su cliente, número y fecha. Luego se abrirá automáticamente para agregar sus productos."
           />
         ) : (
           <>
@@ -344,7 +405,7 @@ function OrdersPage() {
         <Modal
           closeDisabled={savingDetail || deletingDetailId !== null}
           className="order-details-modal"
-          description={`Fecha del pedido: ${selectedOrder.dateOrder?.slice(0, 10) || '—'}. Administra los productos y cantidades solicitados.`}
+          description={detailsDescription}
           onClose={closeDetails}
           title={`Detalle del pedido ${getOrderLabel(selectedOrder)}`}
         >
@@ -472,6 +533,10 @@ function OrdersPage() {
             setFormError(null)
           }}
           onSubmit={handleSaveOrder}
+          clients={clients}
+          clientsLoading={clientsLoading}
+          clientsError={clientsError}
+          supervisorName={user?.username ?? user?.name}
           submitting={saving}
         />
       )}

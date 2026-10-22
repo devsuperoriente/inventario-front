@@ -6,7 +6,12 @@ export function getProducts() {
   return apiRequest(endpoint)
 }
 
+export function getProductByName(name) {
+  return apiRequest(`${endpoint}/search/${encodeURIComponent(name)}`)
+}
+
 export function createProduct(productData) {
+  console.log(productData)
   return apiRequest(endpoint, {
     method: 'POST',
     body: JSON.stringify(productData),

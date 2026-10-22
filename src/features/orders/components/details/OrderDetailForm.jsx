@@ -1,6 +1,13 @@
 import { useState } from 'react'
 
-function OrderDetailForm({ products, initialValues, onSubmit, onCancel, submitting, error }) {
+function OrderDetailForm({ products = [], initialValues, onSubmit, onCancel, submitting, error }) {
+  // Filtramos para quedarnos solo con los productos de tipo final
+  // (Ajusta 'product.type === "FINAL"' o la condición exacta que uses en tu base de datos)
+  // Si tu producto guarda la categoría como un objeto (relación) o como un ID directo
+  const finalProducts = products.filter(
+    (product) => product.categoryId === 2 || product.category?.id === 2
+  )
+
   const [productId, setProductId] = useState(
     String(initialValues?.productId ?? initialValues?.product?.id ?? ''),
   )
@@ -8,7 +15,8 @@ function OrderDetailForm({ products, initialValues, onSubmit, onCancel, submitti
 
   async function handleSubmit(event) {
     event.preventDefault()
-    const product = products.find((item) => String(item.id) === productId)
+    // Buscamos dentro de los productos filtrados
+    const product = finalProducts.find((item) => String(item.id) === productId)
     const numericAmount = Number(amount)
 
     if (!product || !Number.isFinite(numericAmount) || numericAmount <= 0) return
@@ -20,15 +28,16 @@ function OrderDetailForm({ products, initialValues, onSubmit, onCancel, submitti
     <form className="entity-form order-detail-form" onSubmit={handleSubmit}>
       <div className="entity-form-grid order-detail-form-grid">
         <label className="entity-form-field">
-          <span>Producto <span aria-hidden="true">*</span></span>
+          <span>Producto Final <span aria-hidden="true">*</span></span>
           <select
             autoFocus
             onChange={(event) => setProductId(event.target.value)}
             required
             value={productId}
           >
-            <option value="">Selecciona un producto</option>
-            {products.map((product) => (
+            <option value="">Selecciona un producto final</option>
+            {/* Mapeamos 'finalProducts' en lugar de 'products' */}
+            {finalProducts.map((product) => (
               <option key={product.id} value={product.id}>
                 {product.name}{product.code ? ` · ${product.code}` : ''}
               </option>

@@ -1,7 +1,9 @@
 import EmptyState from '../../../components/feedback/EmptyState.jsx'
 
 function OrderTable({ items, onEdit, onDelete, onViewDetails, deletingId }) {
-  if (items.length === 0) {
+  const sortedItems = [...items].sort((a, b) => b.id - a.id)
+
+  if (sortedItems.length === 0) {
     return (
       <EmptyState
         title="No se encontraron pedidos"
@@ -17,17 +19,21 @@ function OrderTable({ items, onEdit, onDelete, onViewDetails, deletingId }) {
         <thead>
           <tr>
             <th scope="col">Número de pedido</th>
+            <th scope="col">Cliente</th>
             <th className="order-column-date" scope="col">Fecha</th>
             <th className="order-column-actions" scope="col">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {items.map((order) => {
+          {sortedItems.map((order) => {
             const orderLabel = order.numberOrder ?? order.orderNumber ?? `#${order.id}`
 
             return (
               <tr key={order.id}>
                 <td><strong>{orderLabel}</strong></td>
+                <td className="order-column-client">
+                  {order.client?.name ?? order.clientName ?? '—'}
+                </td>
                 <td className="order-column-date">{order.dateOrder?.slice(0, 10) || '—'}</td>
                 <td className="order-column-actions">
                   <div className="table-actions">
@@ -44,10 +50,10 @@ function OrderTable({ items, onEdit, onDelete, onViewDetails, deletingId }) {
                       <span className="action-label">Detalles</span>
                     </button>
                     <button
-                      aria-label={`Modificar orden ${orderLabel}`}
+                      aria-label={`Modificar pedido ${orderLabel}`}
                       className="table-action"
                       onClick={() => onEdit(order)}
-                      title="Modificar orden"
+                      title="Modificar pedido"
                       type="button"
                     >
                       <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
@@ -56,11 +62,11 @@ function OrderTable({ items, onEdit, onDelete, onViewDetails, deletingId }) {
                       <span className="action-label">Modificar</span>
                     </button>
                     <button
-                      aria-label={`${deletingId === order.id ? 'Eliminando' : 'Eliminar'} orden ${orderLabel}`}
+                      aria-label={`${deletingId === order.id ? 'Eliminando' : 'Eliminar'} pedido ${orderLabel}`}
                       className="table-action danger"
                       disabled={deletingId === order.id}
                       onClick={() => onDelete(order)}
-                      title="Eliminar orden"
+                      title="Eliminar pedido"
                       type="button"
                     >
                       <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">

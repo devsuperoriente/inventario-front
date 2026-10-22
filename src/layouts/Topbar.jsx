@@ -1,4 +1,11 @@
-function Topbar({ currentSection }) {
+function Topbar({ currentSection, user, onLogout, logoutError }) {
+  const initials = user.name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase()
+
   return (
     <header className="topbar">
       <div>
@@ -6,11 +13,13 @@ function Topbar({ currentSection }) {
         <strong>{currentSection}</strong>
       </div>
       <div className="user-chip">
-        <span className="user-avatar" aria-hidden="true">OP</span>
+        <span className="user-avatar" aria-hidden="true">{initials}</span>
         <span>
-          <strong>Operador</strong>
-          <small>Planta principal</small>
+          <strong>{user.name}</strong>
+          <small>{user.role || user.email || 'Usuario'}</small>
         </span>
+        <button className="logout-button" type="button" onClick={onLogout}>Cerrar sesión</button>
+        {logoutError && <span className="login-error" role="alert">{logoutError}</span>}
       </div>
     </header>
   )

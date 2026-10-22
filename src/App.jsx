@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import AppLayout from './layouts/AppLayout.jsx'
+import LoginPage from './auth/LoginPage.jsx'
+import { useAuth } from './auth/useAuth.js'
 import DashboardPage from './features/dashboard/pages/DashboardPage.jsx'
 import InventoryPage from './features/inventory/pages/InventoryPage.jsx'
 import ModulePlaceholderPage from './features/shared/ModulePlaceholderPage.jsx'
@@ -11,12 +13,14 @@ import MovementTypesPage from './features/types-movement/pages/MovementTypesPage
 import OrdersPage from './features/orders/pages/OrdersPage.jsx'
 import CategoriesPage from './features/categories/pages/CategoriesPage.jsx'
 import ProductsPage from './features/products/pages/ProductsPage.jsx'
+import BatchesPage from './features/batches/pages/BatchesPage.jsx'
 
 const modules = [
   { id: 'dashboard', label: 'Resumen', icon: 'R' },
   { id: 'inventory', label: 'Inventario', icon: 'I' },
   { id: 'categories', label: 'Categorias', icon: 'C' },
   { id: 'products', label: 'Productos', icon: 'P' },
+  { id: 'batches', label: 'Lotes', icon: 'L' },
   { id: 'providers', label: 'Proveedores', icon: 'P' },
   { id: 'clients', label: 'Clientes', icon: 'C' },
   { id: 'orders', label: 'Pedidos de clientes', icon: 'P' },
@@ -33,6 +37,7 @@ const moduleDescriptions = {
   clients: 'Administra los clientes y sus datos de contacto.',
   categories: 'Organiza las materias primas por categoria.',
   products: 'Administra productos relacionados con una categoria y una unidad de medida.',
+  batches: 'Registra y consulta lotes asociados a productos y proveedores.',
   orders: 'Registra pedidos por número y fecha, y agrega en cada uno sus productos y cantidades.',
   'order-states': 'Configura los estados disponibles para las ordenes de produccion.',
   'measurement-units': 'Administra las unidades usadas para registrar cantidades de insumos.',
@@ -43,35 +48,80 @@ const moduleDescriptions = {
 }
 
 function App() {
+  const {
+    user,
+    logout,
+    canAccessFeature,
+    isLoading,
+    authError,
+  } = useAuth()
   const [activeModule, setActiveModule] = useState('dashboard')
+  const [logoutError, setLogoutError] = useState('')
+  const availableModules = modules.filter((module) => canAccessFeature(module.id))
+
+  async function handleLogout() {
+    setLogoutError('')
+    try {
+      await logout()
+    } catch (error) {
+      setLogoutError(error.message || 'No fue posible cerrar la sesión.')
+    }
+  }
+
+  if (isLoading) {
+    return <main className="auth-loading" role="status">Verificando sesión...</main>
+  }
+
+  if (!user) return <LoginPage connectionError={authError} />
+
+  if (availableModules.length === 0) {
+    return (
+      <div className="no-feature-access">
+        <div>
+          <p className="eyebrow">ACCESO RESTRINGIDO</p>
+          <h1>No tienes funcionalidades asignadas</h1>
+          <p>Solicita al administrador que asigne permisos a tu usuario.</p>
+          {logoutError && <p className="login-error" role="alert">{logoutError}</p>}
+          <button className="btn-secondary" type="button" onClick={handleLogout}>
+            Cerrar sesión
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  const visibleModule = availableModules.find((module) => module.id === activeModule)
+  const selectedModule = visibleModule ?? availableModules[0]
 
   function renderPage() {
-    if (activeModule === 'dashboard') return <DashboardPage />
-    if (activeModule === 'inventory') return <InventoryPage />
-    if (activeModule === 'categories') return <CategoriesPage />
-    if (activeModule === 'products') return <ProductsPage />
-    if (activeModule === 'providers') return <ProviderPage />
-    if (activeModule === 'clients') return <ClientPage />
-    if (activeModule === 'orders') return <OrdersPage />
-    if (activeModule === 'order-states') return <OrderStatesPage />
-    if (activeModule === 'measurement-units') return <MeasurementUnitsPage />
-    if (activeModule === 'types-movement') return <MovementTypesPage />
-
-    const currentModule = modules.find((module) => module.id === activeModule)
+    if (selectedModule.id === 'dashboard') return <DashboardPage />
+    if (selectedModule.id === 'inventory') return <InventoryPage />
+    if (selectedModule.id === 'categories') return <CategoriesPage />
+    if (selectedModule.id === 'products') return <ProductsPage />
+    if (selectedModule.id === 'batches') return <BatchesPage />
+    if (selectedModule.id === 'providers') return <ProviderPage />
+    if (selectedModule.id === 'clients') return <ClientPage />
+    if (selectedModule.id === 'orders') return <OrdersPage />
+    if (selectedModule.id === 'order-states') return <OrderStatesPage />
+    if (selectedModule.id === 'measurement-units') return <MeasurementUnitsPage />
+    if (selectedModule.id === 'types-movement') return <MovementTypesPage />
 
     return (
       <ModulePlaceholderPage
-        title={currentModule.label}
-        description={moduleDescriptions[activeModule]}
+        title={selectedModule.label}
+        description={moduleDescriptions[selectedModule.id]}
       />
     )
   }
 
   return (
     <AppLayout
-      modules={modules}
-      activeModule={activeModule}
+      modules={availableModules}
+      activeModule={selectedModule.id}
       onModuleChange={setActiveModule}
+      user={user}
+      onLogout={handleLogout}
+      logoutError={logoutError}
     >
       {renderPage()}
     </AppLayout>
