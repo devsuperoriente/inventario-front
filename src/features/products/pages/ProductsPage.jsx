@@ -15,8 +15,37 @@ import {
   updateProduct,
 } from '../services/productsApi.js'
 
+const productGroups = [
+  { id: 'all', label: 'Todos' },
+  { id: 'raw-material', label: 'Materia prima' },
+  { id: 'final-product', label: 'Producto final' },
+  { id: 'other', label: 'Otras categorías' },
+]
+
 function loadProductsData() {
   return Promise.all([getProducts(), getCategories(), getMeasurementUnits()])
+}
+
+function normalizeCategoryName(name) {
+  return String(name ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLocaleLowerCase()
+}
+
+function getProductGroup(product, categoriesById) {
+  const category = product.category ?? categoriesById.get(
+    String(product.categoryId ?? product.category?.id ?? ''),
+  )
+  const categoryId = String(product.categoryId ?? category?.id ?? '')
+  const categoryName = normalizeCategoryName(category?.name)
+
+  if (categoryName.includes('producto final')) return 'final-product'
+  if (categoryName.includes('materia prima')) return 'raw-material'
+  if (categoryId === '1') return 'raw-material'
+  if (categoryId === '2') return 'final-product'
+  return 'other'
 }
 
 function ProductsPage() {
@@ -26,6 +55,7 @@ function ProductsPage() {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(null)
   const [search, setSearch] = useState('')
+  const [activeGroup, setActiveGroup] = useState('all')
   const [formOpen, setFormOpen] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
   const [formError, setFormError] = useState(null)
@@ -84,7 +114,7 @@ function ProductsPage() {
     [measurementUnits],
   )
 
-  const filteredProducts = useMemo(() => {
+  const searchedProducts = useMemo(() => {
     const normalizedSearch = search.trim().toLocaleLowerCase()
 
     return products.filter((product) => {
@@ -103,6 +133,21 @@ function ProductsPage() {
       ].some((value) => String(value ?? '').toLocaleLowerCase().includes(normalizedSearch))
     })
   }, [categoriesById, products, search, unitsById])
+
+  const groupCounts = useMemo(() => {
+    const counts = { all: products.length, 'raw-material': 0, 'final-product': 0, other: 0 }
+    products.forEach((product) => {
+      counts[getProductGroup(product, categoriesById)] += 1
+    })
+    return counts
+  }, [categoriesById, products])
+
+  const filteredProducts = useMemo(
+    () => searchedProducts.filter(
+      (product) => activeGroup === 'all' || getProductGroup(product, categoriesById) === activeGroup,
+    ),
+    [activeGroup, categoriesById, searchedProducts],
+  )
 
   async function handleSaveProduct(formData) {
     setSaving(true)
@@ -193,7 +238,7 @@ function ProductsPage() {
         <div className="panel-heading provider-panel-heading">
           <div>
             <h2>Productos registrados</h2>
-            <p>{filteredProducts.length} de {products.length} productos</p>
+            <p>{filteredProducts.length} producto{filteredProducts.length === 1 ? '' : 's'} mostrados</p>
           </div>
           <button
             className="btn-primary"
@@ -240,6 +285,20 @@ function ProductsPage() {
         ) : (
           <>
             <ProductFilters search={search} onSearchChange={setSearch} />
+            <nav aria-label="Filtrar productos por tipo" className="product-category-tabs">
+              {productGroups.map((group) => (
+                <button
+                  aria-pressed={activeGroup === group.id}
+                  className={`product-category-tab${activeGroup === group.id ? ' is-active' : ''}`}
+                  key={group.id}
+                  onClick={() => setActiveGroup(group.id)}
+                  type="button"
+                >
+                  <span>{group.label}</span>
+                  <span className="product-category-tab-count">{groupCounts[group.id]}</span>
+                </button>
+              ))}
+            </nav>
             <ProductTable
               categoriesById={categoriesById}
               deletingId={deletingId}
@@ -262,6 +321,13 @@ function ProductsPage() {
           initialValues={editingProduct}
           key={editingProduct?.id ?? 'new-product'}
           measurementUnits={measurementUnits}
+          preferredCategoryId={
+            activeGroup === 'raw-material'
+              ? '1'
+              : activeGroup === 'final-product'
+                ? '2'
+                : ''
+          }
           onCancel={() => {
             setFormOpen(false)
             setEditingProduct(null)

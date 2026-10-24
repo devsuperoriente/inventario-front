@@ -47,7 +47,6 @@ export function getBatches() {
 }
 
 export function createBatch(batchData) {
-  console.log(batchData)
   return apiRequest(endpoint, {
     method: 'POST',
     body: JSON.stringify(batchData),

@@ -14,11 +14,13 @@ import OrdersPage from './features/orders/pages/OrdersPage.jsx'
 import CategoriesPage from './features/categories/pages/CategoriesPage.jsx'
 import ProductsPage from './features/products/pages/ProductsPage.jsx'
 import BatchesPage from './features/batches/pages/BatchesPage.jsx'
+import RecipesPage from './features/recipes/pages/RecipesPage.jsx'
+import ProductionOrdersPage from './features/production-orders/pages/ProductionOrdersPage.jsx'
 
 const modules = [
-  { id: 'dashboard', label: 'Resumen', icon: 'R' },
+  //{ id: 'dashboard', label: 'Resumen', icon: 'R' },
   { id: 'inventory', label: 'Inventario', icon: 'I' },
-  { id: 'categories', label: 'Categorias', icon: 'C' },
+  { id: 'dispatch', label: 'Despachos', icon: 'D' },
   { id: 'products', label: 'Productos', icon: 'P' },
   { id: 'batches', label: 'Lotes', icon: 'L' },
   { id: 'providers', label: 'Proveedores', icon: 'P' },
@@ -29,13 +31,15 @@ const modules = [
   { id: 'order-states', label: 'Estados de orden', icon: 'E' },
   { id: 'measurement-units', label: 'Unidades de medida', icon: 'U' },
   { id: 'types-movement', label: 'Tipos de movimiento', icon: 'M' },
-  { id: 'dispatch', label: 'Despachos', icon: 'D' },
+  { id: 'categories', label: 'Categorias', icon: 'C' },
+
 ]
 
 const moduleDescriptions = {
-  providers: 'Administra los proveedores de materias primas y sus datos de contacto.',
+  //providers: 'Administra los proveedores de materias primas y sus datos de contacto.',
+  inventory: 'Consulta las existencias actuales por lote y el historial de movimientos de inventario.',
   clients: 'Administra los clientes y sus datos de contacto.',
-  categories: 'Organiza las materias primas por categoria.',
+  dispatch: 'Confirma el consumo de insumos y los lotes utilizados en cada orden.',
   products: 'Administra productos relacionados con una categoria y una unidad de medida.',
   batches: 'Registra y consulta lotes asociados a productos y proveedores.',
   orders: 'Registra pedidos por número y fecha, y agrega en cada uno sus productos y cantidades.',
@@ -43,8 +47,8 @@ const moduleDescriptions = {
   'measurement-units': 'Administra las unidades usadas para registrar cantidades de insumos.',
   'types-movement': 'Configura los tipos de movimiento para entradas, salidas y ajustes de inventario.',
   recipes: 'Consulta las recetas y las cantidades de insumos necesarias para producir.',
-  'production-orders': 'Revisa las ordenes de produccion y calcula los insumos requeridos.',
-  dispatch: 'Confirma el consumo de insumos y los lotes utilizados en cada orden.',
+  'production-orders': 'Revisa las ordenes, calcula insumos y registra su consumo durante la dosificacion.',
+  categories: 'Organiza las materias primas por categoria.',
 }
 
 function App() {
@@ -94,17 +98,19 @@ function App() {
   const selectedModule = visibleModule ?? availableModules[0]
 
   function renderPage() {
-    if (selectedModule.id === 'dashboard') return <DashboardPage />
+    //if (selectedModule.id === 'dashboard') return <DashboardPage />
     if (selectedModule.id === 'inventory') return <InventoryPage />
-    if (selectedModule.id === 'categories') return <CategoriesPage />
+    if (selectedModule.id === 'types-movement') return <MovementTypesPage />
     if (selectedModule.id === 'products') return <ProductsPage />
     if (selectedModule.id === 'batches') return <BatchesPage />
+    if (selectedModule.id === 'recipes') return <RecipesPage />
     if (selectedModule.id === 'providers') return <ProviderPage />
     if (selectedModule.id === 'clients') return <ClientPage />
     if (selectedModule.id === 'orders') return <OrdersPage />
+    if (selectedModule.id === 'production-orders') return <ProductionOrdersPage />
     if (selectedModule.id === 'order-states') return <OrderStatesPage />
     if (selectedModule.id === 'measurement-units') return <MeasurementUnitsPage />
-    if (selectedModule.id === 'types-movement') return <MovementTypesPage />
+    if (selectedModule.id === 'categories') return <CategoriesPage />
 
     return (
       <ModulePlaceholderPage

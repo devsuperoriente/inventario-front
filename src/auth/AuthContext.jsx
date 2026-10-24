@@ -29,6 +29,20 @@ function parseSession(response) {
   }
 }
 
+function isAdministrator(session) {
+  const role = session?.user?.role
+  const roleName = typeof role === 'string' ? role : role?.name
+  const normalizedRole = String(roleName ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLocaleLowerCase()
+
+  return normalizedRole === 'admin'
+    || normalizedRole === 'administrador'
+    || session?.permissions?.includes('admin')
+}
+
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -80,7 +94,6 @@ export function AuthProvider({ children }) {
       method: 'POST',
       body: JSON.stringify(credentials),
     })
-    console.log("Respuesta de sesión del backend:", response); // <--- Revisa esto en la consola
     const nextSession = parseSession(response)
     setAuthError('')
     setSession(nextSession)
@@ -101,7 +114,7 @@ export function AuthProvider({ children }) {
     canAccessFeature: (featureId) => {
     const permissions = session?.permissions ?? []
     
-    if (permissions.includes('*')) return true
+    if (isAdministrator(session) || permissions.includes('*')) return true
     
     // Si el usuario tiene permisos específicos de órdenes, permitimos ver el módulo 'orders'
     if (featureId === 'orders' && permissions.some(p => p.startsWith('orders'))) {

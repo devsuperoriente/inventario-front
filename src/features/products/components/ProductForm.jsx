@@ -11,6 +11,7 @@ const emptyFormData = {
 function ProductForm({
   categories,
   measurementUnits,
+  preferredCategoryId = '',
   initialValues,
   onSubmit,
   onCancel,
@@ -22,7 +23,11 @@ function ProductForm({
     ...initialValues,
     name: initialValues?.name ?? '',
     code: initialValues?.code ?? '',
-    categoryId: String(initialValues?.categoryId ?? initialValues?.category?.id ?? ''),
+    categoryId: String(
+      initialValues?.categoryId
+      ?? initialValues?.category?.id
+      ?? preferredCategoryId,
+    ),
     unitsMeasurementId: String(initialValues?.unitsMeasurementId ?? 
       initialValues?.unitsMeasurement?.id ?? ''
     ),

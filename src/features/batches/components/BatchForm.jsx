@@ -2,10 +2,9 @@ import { useEffect, useState } from 'react'
 import Modal from '../../../components/ui/Modal.jsx'
 
 const emptyForm = {
-  code: '',
   quantityInitial: '',
-  date: '',
-  dateMatury: '',
+  entryDate: '',
+  expirationDate: '',
   temperature: '',
   observation: '',
   productId: '',
@@ -23,17 +22,19 @@ function BatchForm({
 }) {
   const [formData, setFormData] = useState(() => ({
     ...emptyForm,
-    code: initialValues?.code ?? '',
     quantityInitial: String(initialValues?.quantityInitial ?? ''),
-    date: initialValues?.date?.slice(0, 10) ?? '',
-    dateMatury: initialValues?.dateMatury?.slice(0, 10) ?? '',
+    entryDate: initialValues?.entryDate?.slice(0, 10) ?? '',
+    expirationDate: initialValues?.expirationDate?.slice(0, 10) ?? '',
     temperature: String(initialValues?.temperature ?? ''),
     observation: initialValues?.observation ?? '',
     productId: String(initialValues?.productId ?? initialValues?.product?.id ?? ''),
     providerId: String(initialValues?.providerId ?? initialValues?.provider?.id ?? ''),
   }))
-  const [image, setImage] = useState(null)
-  const [imagePreview, setImagePreview] = useState(initialValues?.image ?? '')
+
+  const [imageFile, setImageFile] = useState(null)
+  const [imagePreview, setImagePreview] = useState(
+    initialValues?.imageUrl ?? ''
+  )
 
   useEffect(() => {
     if (!imagePreview.startsWith('blob:')) return undefined
@@ -47,23 +48,27 @@ function BatchForm({
 
   function handleImageChange(event) {
     const file = event.target.files?.[0] ?? null
+    const currentImageUrl = initialValues?.imageUrl ?? ''
+
     if (file && !file.type.startsWith('image/')) {
       event.target.value = ''
-      setImage(null)
-      setImagePreview(initialValues?.image ?? '')
+      setImageFile(null)
+      setImagePreview(currentImageUrl)
       setFormData((current) => ({ ...current, imageError: 'Selecciona un archivo de imagen válido.' }))
       return
     }
+
     if (file && file.size > 5 * 1024 * 1024) {
       event.target.value = ''
-      setImage(null)
-      setImagePreview(initialValues?.image ?? '')
+      setImageFile(null)
+      setImagePreview(currentImageUrl)
       setFormData((current) => ({ ...current, imageError: 'La imagen no puede superar 5 MB.' }))
       return
     }
-    setImage(file)
+
+    setImageFile(file)
     setFormData((current) => ({ ...current, imageError: '' }))
-    setImagePreview(file ? URL.createObjectURL(file) : initialValues?.image ?? '')
+    setImagePreview(file ? URL.createObjectURL(file) : currentImageUrl)
   }
 
   async function handleSubmit(event) {
@@ -72,19 +77,20 @@ function BatchForm({
     const provider = providers.find((item) => String(item.id) === formData.providerId)
     if (!product || !provider) return
 
+    const currentImageUrl = initialValues?.imageUrl ?? initialValues?.image ?? null
+
     await onSubmit({
       batchData: {
-        code: formData.code.trim(),
         quantityInitial: Number(formData.quantityInitial),
-        date: formData.date,
-        dateMatury: formData.dateMatury,
-        temperature: Number(formData.temperature),
-        observation: formData.observation.trim(),
+        entryDate: formData.entryDate,
+        expirationDate: formData.expirationDate,
+        temperature: formData.temperature === '' ? null : Number(formData.temperature),
+        observation: formData.observation.trim(), // Envia "" si está vacío en vez de null
         productId: product.id,
         providerId: provider.id,
-        image: initialValues?.image ?? '',
+        ...(currentImageUrl ? { imageUrl: currentImageUrl } : {}),
       },
-      imageFile: image,
+      imageFile,
     })
   }
 
@@ -98,26 +104,16 @@ function BatchForm({
       <form className="entity-form" onSubmit={handleSubmit}>
         <div className="entity-form-grid batch-form-grid">
           <label className="entity-form-field">
-            <span>Código <span aria-hidden="true">*</span></span>
-            <input
-              autoComplete="off"
-              maxLength={60}
-              name="code"
-              onChange={handleChange}
-              required
-              value={formData.code}
-            />
-          </label>
-
-          <label className="entity-form-field">
             <span>Producto <span aria-hidden="true">*</span></span>
             <select name="productId" onChange={handleChange} required value={formData.productId}>
               <option value="">Selecciona un producto</option>
-              {products.map((product) => (
-                <option key={product.id} value={product.id}>
-                  {product.name}{product.code ? ` · ${product.code}` : ''}
-                </option>
-              ))}
+              {products
+                .filter((product) => product.category?.name?.toLowerCase() === 'materia prima')
+                .map((product) => (
+                  <option key={product.id} value={product.id}>
+                    {product.name}{product.code ? ` · ${product.code}` : ''}
+                  </option>
+                ))}
             </select>
           </label>
 
@@ -138,7 +134,7 @@ function BatchForm({
               name="quantityInitial"
               onChange={handleChange}
               required
-              step="any"
+              step="0.01"
               type="number"
               value={formData.quantityInitial}
             />
@@ -146,46 +142,46 @@ function BatchForm({
 
           <label className="entity-form-field">
             <span>Fecha de ingreso <span aria-hidden="true">*</span></span>
-            <input name="date" onChange={handleChange} required type="date" value={formData.date} />
+            <input name="entryDate" onChange={handleChange} required type="date" value={formData.entryDate} />
           </label>
 
           <label className="entity-form-field">
-            <span>Fecha de madurez / vencimiento <span aria-hidden="true">*</span></span>
+            <span>Fecha de vencimiento <span aria-hidden="true">*</span></span>
             <input
-              name="dateMatury"
+              min={formData.entryDate}
+              name="expirationDate"
               onChange={handleChange}
               required
               type="date"
-              value={formData.dateMatury}
+              value={formData.expirationDate}
             />
           </label>
 
           <label className="entity-form-field">
-            <span>Temperatura (°C) <span aria-hidden="true">*</span></span>
+            <span>Temperatura (°C)</span>
             <input
               name="temperature"
               onChange={handleChange}
-              required
-              step="any"
+              step="0.01"
               type="number"
               value={formData.temperature}
             />
           </label>
 
           <label className="entity-form-field">
-            <span>Imagen (máximo 5 MB)</span>
+            <span>Imagen (opcional, máximo 5 MB)</span>
             <input
               accept="image/*"
-              name="image"
+              name="imageUrl"
               onChange={handleImageChange}
               type="file"
             />
           </label>
 
           <label className="entity-form-field batch-observation-field">
-            <span>Observación</span>
+            <span>Observación (opcional)</span>
             <textarea
-              maxLength={1000}
+              maxLength={255}
               name="observation"
               onChange={handleChange}
               rows="3"
@@ -197,7 +193,7 @@ function BatchForm({
         {imagePreview && (
           <div className="batch-image-preview">
             <img alt="Vista previa del lote" src={imagePreview} />
-            <span>{image?.name ?? 'Imagen actual'}</span>
+            <span>{imageFile?.name ?? 'Imagen actual'}</span>
           </div>
         )}
         {formData.imageError && <p className="form-error" role="alert">{formData.imageError}</p>}

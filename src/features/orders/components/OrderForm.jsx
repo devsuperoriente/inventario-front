@@ -1,6 +1,14 @@
 import { useState } from 'react'
 import Modal from '../../../components/ui/Modal.jsx'
 
+function getTodayDate() {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 const emptyFormData = {
   dateOrder: '',
   clientId: '',
@@ -20,7 +28,8 @@ function OrderForm({
   const [formData, setFormData] = useState(() => ({
     ...emptyFormData,
     ...initialValues,
-    dateOrder: initialValues?.dateOrder?.slice(0, 10) ?? '',
+    // Si hay initialValues toma su fecha; de lo contrario, precarga la fecha actual de hoy
+    dateOrder: initialValues?.dateOrder?.slice(0, 10) ?? getTodayDate(),
     clientId: String(initialValues?.clientId ?? initialValues?.client?.id ?? ''),
   }))
 

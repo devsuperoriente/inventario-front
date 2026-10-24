@@ -5,6 +5,7 @@ import PageHeading from '../../../components/ui/PageHeading.jsx'
 import { getProducts } from '../../products/services/productsApi.js'
 import { getProviders } from '../../providers/services/ProviderApi.js'
 import BatchFilters from '../components/BatchFilters.jsx'
+import BatchDetailsModal from '../components/BatchDetailsModal.jsx'
 import BatchForm from '../components/BatchForm.jsx'
 import BatchTable from '../components/BatchTable.jsx'
 import DeleteBatchModal from '../components/DeleteBatchModal.jsx'
@@ -28,6 +29,7 @@ function BatchesPage() {
   const [formError, setFormError] = useState('')
   const [saving, setSaving] = useState(false)
   const [batchToDelete, setBatchToDelete] = useState(null)
+  const [viewingBatch, setViewingBatch] = useState(null)
   const [deleteError, setDeleteError] = useState('')
   const [deletingId, setDeletingId] = useState(null)
   const [toast, setToast] = useState(null)
@@ -79,7 +81,6 @@ function BatchesPage() {
   const filteredBatches = useMemo(() => {
     const normalizedSearch = search.trim().toLocaleLowerCase()
     return batches.filter((batch) => [
-      batch.code,
       batch.product?.name,
       batch.productName,
       batch.provider?.name,
@@ -94,8 +95,8 @@ function BatchesPage() {
     setToast(null)
     try {
       const wasEditing = Boolean(editingBatch)
-      const imageUrl = imageFile ? await uploadBatchImage(imageFile) : batchData.image
-      const payload = { ...batchData, image: imageUrl }
+      const imageUrl = imageFile ? await uploadBatchImage(imageFile) : batchData.imageUrl
+      const payload = imageUrl ? { ...batchData, imageUrl } : batchData
       if (editingBatch) {
         await updateBatch(editingBatch.id, payload)
       } else {
@@ -215,6 +216,7 @@ function BatchesPage() {
             <BatchTable
               deletingId={deletingId}
               items={filteredBatches}
+              onViewDetails={setViewingBatch}
               onDelete={(batch) => {
                 setBatchToDelete(batch)
                 setDeleteError('')
@@ -239,6 +241,13 @@ function BatchesPage() {
           products={products}
           providers={providers}
           submitting={saving}
+        />
+      )}
+
+      {viewingBatch && (
+        <BatchDetailsModal
+          batch={viewingBatch}
+          onClose={() => setViewingBatch(null)}
         />
       )}
 

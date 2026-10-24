@@ -11,7 +11,6 @@ export function getProductByName(name) {
 }
 
 export function createProduct(productData) {
-  console.log(productData)
   return apiRequest(endpoint, {
     method: 'POST',
     body: JSON.stringify(productData),

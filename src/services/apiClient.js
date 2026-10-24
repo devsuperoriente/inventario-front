@@ -24,13 +24,32 @@ async function sendRequest(path, options) {
     throw error
   }
 
+  // --- INICIO DE LA MODIFICACIÓN ---
   if (!response.ok) {
-    const error = new Error(
-      `Error de API (${response.status}): ${response.statusText || 'Error en la solicitud'}`,
-    )
+    let errorMessage = `Error de API (${response.status}): ${response.statusText || 'Error en la solicitud'}`
+    let errorData = null
+
+    try {
+      // Intentar leer el JSON de error que envía el backend (NestJS/Express)
+      errorData = await response.json()
+      
+      // Si el backend envía un "message", lo usamos
+      if (errorData && errorData.message) {
+        // A veces el backend puede enviar un arreglo de mensajes (ej: validaciones de DTOs)
+        errorMessage = Array.isArray(errorData.message) 
+          ? errorData.message.join(', ') 
+          : errorData.message
+      }
+    } catch (parseError) {
+      // Si la respuesta no era JSON, fallará silenciosamente y conservaremos el mensaje por defecto
+    }
+
+    const error = new Error(errorMessage)
     error.status = response.status
+    error.data = errorData // Guardamos toda la respuesta original por si la necesitas
     throw error
   }
+  // --- FIN DE LA MODIFICACIÓN ---
 
   if (response.status === 204) return null
 
