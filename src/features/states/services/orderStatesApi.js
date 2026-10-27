@@ -1,27 +1,27 @@
-import { apiRequest } from '../../../services/apiClient.js'
+import { apiRequest } from "../../../services/apiClient.js";
 
-const endpoint = '/estados'
+const endpoint = "/estados";
 
 export function getOrderStates() {
-  return apiRequest(endpoint)
+  return apiRequest(endpoint);
 }
 
 export function createOrderState(stateData) {
   return apiRequest(endpoint, {
-    method: 'POST',
+    method: "POST",
     body: JSON.stringify(stateData),
-  })
+  });
 }
 
 export function updateOrderState(id, stateData) {
   return apiRequest(`${endpoint}/${encodeURIComponent(id)}`, {
-    method: 'PUT',
+    method: "PUT",
     body: JSON.stringify(stateData),
-  })
+  });
 }
 
 export function deleteOrderState(id) {
   return apiRequest(`${endpoint}/${encodeURIComponent(id)}`, {
-    method: 'DELETE',
-  })
+    method: "DELETE",
+  });
 }

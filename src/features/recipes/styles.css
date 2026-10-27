@@ -1,0 +1,39 @@
+.recipe-table {
+  table-layout: fixed;
+}
+
+.recipe-table th:first-child,
+.recipe-table td:first-child {
+  width: 15%;
+}
+
+.recipe-table th:nth-child(2),
+.recipe-table td:nth-child(2) {
+  width: 22%;
+}
+
+.recipe-table th:nth-child(3),
+.recipe-table td:nth-child(3) {
+  width: 15%;
+}
+
+.recipe-table .recipe-column-description {
+  width: 20%;
+}
+
+.recipe-table .recipe-column-actions {
+  width: 28%;
+  text-align: right;
+}
+
+.recipe-column-actions .table-actions {
+  justify-content: flex-end;
+}
+
+.recipe-detail-table .recipe-detail-column-actions {
+  text-align: right;
+}
+
+.recipe-detail-column-actions .table-actions {
+  justify-content: flex-end;
+}

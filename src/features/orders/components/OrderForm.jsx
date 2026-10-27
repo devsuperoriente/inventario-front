@@ -1,18 +1,18 @@
-import { useState } from 'react'
-import Modal from '../../../components/ui/Modal.jsx'
+import { useState } from "react";
+import Modal from "../../../components/ui/Modal.jsx";
 
 function getTodayDate() {
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = String(now.getMonth() + 1).padStart(2, '0')
-  const day = String(now.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 const emptyFormData = {
-  dateOrder: '',
-  clientId: '',
-}
+  dateOrder: "",
+  clientId: "",
+};
 
 function OrderForm({
   initialValues,
@@ -28,25 +28,26 @@ function OrderForm({
   const [formData, setFormData] = useState(() => ({
     ...emptyFormData,
     ...initialValues,
-    // Si hay initialValues toma su fecha; de lo contrario, precarga la fecha actual de hoy
     dateOrder: initialValues?.dateOrder?.slice(0, 10) ?? getTodayDate(),
-    clientId: String(initialValues?.clientId ?? initialValues?.client?.id ?? ''),
-  }))
+    clientId: String(
+      initialValues?.clientId ?? initialValues?.client?.id ?? "",
+    ),
+  }));
 
   function handleChange(event) {
-    const { name, value } = event.target
-    setFormData((currentData) => ({ ...currentData, [name]: value }))
+    const { name, value } = event.target;
+    setFormData((currentData) => ({ ...currentData, [name]: value }));
   }
 
   async function handleSubmit(event) {
-    event.preventDefault()
+    event.preventDefault();
     const selectedClient = clients.find(
       (client) => String(client.id) === formData.clientId,
-    )
+    );
     await onSubmit({
       dateOrder: formData.dateOrder,
       clientId: selectedClient.id,
-    })
+    });
   }
 
   return (
@@ -54,12 +55,14 @@ function OrderForm({
       closeDisabled={submitting}
       description="Selecciona el cliente y define el número y la fecha del pedido. Luego agrega los productos y cantidades."
       onClose={onCancel}
-      title={initialValues ? 'Modificar orden' : 'Nueva orden'}
+      title={initialValues ? "Modificar orden" : "Nueva orden"}
     >
       <form className="entity-form" onSubmit={handleSubmit}>
         <div className="entity-form-grid order-form-grid">
           <label className="entity-form-field">
-            <span>Cliente <span aria-hidden="true">*</span></span>
+            <span>
+              Cliente <span aria-hidden="true">*</span>
+            </span>
             <select
               disabled={clientsLoading || clients.length === 0}
               name="clientId"
@@ -68,17 +71,24 @@ function OrderForm({
               value={formData.clientId}
             >
               <option value="">
-                {clientsLoading ? 'Cargando clientes...' : 'Selecciona un cliente'}
+                {clientsLoading
+                  ? "Cargando clientes..."
+                  : "Selecciona un cliente"}
               </option>
               {clients.map((client) => (
-                <option key={client.id} value={client.id}>{client.name}</option>
+                <option key={client.id} value={client.id}>
+                  {client.name}
+                </option>
               ))}
             </select>
           </label>
 
           <label className="entity-form-field">
-            <span>Fecha del pedido <span aria-hidden="true">*</span></span>
+            <span>
+              Fecha del pedido <span aria-hidden="true">*</span>
+            </span>
             <input
+              disabled // <--- Agregas esta propiedad
               name="dateOrder"
               onChange={handleChange}
               required
@@ -86,10 +96,13 @@ function OrderForm({
               value={formData.dateOrder}
             />
           </label>
-
         </div>
 
-        {clientsError && <p className="form-error" role="alert">{clientsError}</p>}
+        {clientsError && (
+          <p className="form-error" role="alert">
+            {clientsError}
+          </p>
+        )}
         {!clientsLoading && !clientsError && clients.length === 0 && (
           <p className="form-error" role="alert">
             Registra al menos un cliente antes de crear un pedido.
@@ -97,27 +110,45 @@ function OrderForm({
         )}
         {supervisorName && (
           <p className="order-supervisor-note">
-            Supervisor que registra el pedido: <strong>{supervisorName}</strong>.
-            El servidor debe asociar el pedido al usuario autenticado.
+            Supervisor que registra el pedido: <strong>{supervisorName}</strong>
+            . El servidor debe asociar el pedido al usuario autenticado.
           </p>
         )}
-        {error && <p className="form-error" role="alert">{error}</p>}
+        {error && (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        )}
 
         <div className="entity-form-actions">
-          <button className="btn-secondary" disabled={submitting} onClick={onCancel} type="button">
+          <button
+            className="btn-secondary"
+            disabled={submitting}
+            onClick={onCancel}
+            type="button"
+          >
             Cancelar
           </button>
           <button
             className="btn-primary"
-            disabled={submitting || clientsLoading || clients.length === 0 || Boolean(clientsError)}
+            disabled={
+              submitting ||
+              clientsLoading ||
+              clients.length === 0 ||
+              Boolean(clientsError)
+            }
             type="submit"
           >
-            {submitting ? 'Guardando...' : initialValues ? 'Guardar cambios' : 'Guardar orden'}
+            {submitting
+              ? "Guardando..."
+              : initialValues
+                ? "Guardar cambios"
+                : "Guardar orden"}
           </button>
         </div>
       </form>
     </Modal>
-  )
+  );
 }
 
-export default OrderForm
+export default OrderForm;

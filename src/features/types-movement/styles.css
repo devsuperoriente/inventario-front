@@ -1,0 +1,48 @@
+.movement-type-table {
+  table-layout: fixed;
+}
+
+.movement-type-table th:first-child,
+.movement-type-table td:first-child {
+  width: 30%;
+}
+
+.movement-type-table .movement-type-direction {
+  width: 20%;
+}
+
+.movement-type-table .movement-type-description {
+  width: 30%;
+}
+
+.movement-type-table .movement-type-actions {
+  width: 20%;
+  text-align: right;
+}
+
+.movement-type-actions .table-actions {
+  justify-content: flex-end;
+}
+
+.movement-direction-badge {
+  display: inline-flex;
+  padding: 5px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.movement-direction-badge.entrada {
+  color: #337348;
+  background: #e8f5e9;
+}
+
+.movement-direction-badge.salida {
+  color: #a83e3e;
+  background: #fdeaea;
+}
+
+.movement-direction-badge.ajuste {
+  color: #755719;
+  background: #fff3d6;
+}

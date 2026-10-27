@@ -1,0 +1,17 @@
+.order-state-table {
+  table-layout: fixed;
+}
+
+.order-state-table th:first-child,
+.order-state-table td:first-child {
+  width: 30%;
+}
+
+.order-state-table .order-state-description {
+  width: 50%;
+}
+
+.order-state-table .order-state-actions {
+  width: 20%;
+  text-align: right;
+}

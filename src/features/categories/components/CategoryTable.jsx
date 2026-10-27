@@ -1,12 +1,8 @@
-import EmptyState from '../../../components/feedback/EmptyState.jsx'
+import EmptyState from "../../../components/feedback/EmptyState.jsx";
 
 function CategoryTable({ items, onEdit, onDelete, deletingId }) {
   if (items.length === 0) {
-    return (
-      <EmptyState
-        title="No se encontraron categorias"
-      />
-    )
+    return <EmptyState title="No se encontraron categorias" />;
   }
 
   return (
@@ -16,13 +12,17 @@ function CategoryTable({ items, onEdit, onDelete, deletingId }) {
         <thead>
           <tr>
             <th scope="col">Categoria</th>
-            <th className="category-actions" scope="col">Acciones</th>
+            <th className="category-actions" scope="col">
+              Acciones
+            </th>
           </tr>
         </thead>
         <tbody>
           {items.map((category) => (
             <tr key={category.id}>
-              <td><strong>{category.name}</strong></td>
+              <td>
+                <strong>{category.name}</strong>
+              </td>
               <td className="category-actions">
                 <div className="table-actions">
                   <button
@@ -38,7 +38,7 @@ function CategoryTable({ items, onEdit, onDelete, deletingId }) {
                     <span className="action-label">Modificar</span>
                   </button>
                   <button
-                    aria-label={`${deletingId === category.id ? 'Eliminando' : 'Eliminar'} categoria ${category.name}`}
+                    aria-label={`${deletingId === category.id ? "Eliminando" : "Eliminar"} categoria ${category.name}`}
                     className="table-action danger"
                     disabled={deletingId === category.id}
                     onClick={() => onDelete(category)}
@@ -49,7 +49,9 @@ function CategoryTable({ items, onEdit, onDelete, deletingId }) {
                       <path d="M3.5 5.5h13M8 5.5V3.8h4v1.7m-6.5 0 .7 10.7h7.6l.7-10.7M8.2 8.5v5m3.6-5v5" />
                     </svg>
                     <span className="action-label">
-                      {deletingId === category.id ? 'Eliminando...' : 'Eliminar'}
+                      {deletingId === category.id
+                        ? "Eliminando..."
+                        : "Eliminar"}
                     </span>
                   </button>
                 </div>
@@ -59,7 +61,7 @@ function CategoryTable({ items, onEdit, onDelete, deletingId }) {
         </tbody>
       </table>
     </div>
-  )
+  );
 }
 
-export default CategoryTable
+export default CategoryTable;

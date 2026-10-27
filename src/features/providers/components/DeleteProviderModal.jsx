@@ -1,6 +1,12 @@
-import Modal from '../../../components/ui/Modal.jsx'
+import Modal from "../../../components/ui/Modal.jsx";
 
-function DeleteProviderModal({ provider, deleting, error, onConfirm, onCancel }) {
+function DeleteProviderModal({
+  provider,
+  deleting,
+  error,
+  onConfirm,
+  onCancel,
+}) {
   return (
     <Modal
       closeDisabled={deleting}
@@ -12,7 +18,11 @@ function DeleteProviderModal({ provider, deleting, error, onConfirm, onCancel })
         <p>
           ¿Seguro que deseas eliminar a <strong>{provider.name}</strong>?
         </p>
-        {error && <p className="form-error" role="alert">{error}</p>}
+        {error && (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        )}
         <div className="entity-form-actions">
           <button
             className="btn-secondary"
@@ -28,12 +38,12 @@ function DeleteProviderModal({ provider, deleting, error, onConfirm, onCancel })
             onClick={onConfirm}
             type="button"
           >
-            {deleting ? 'Eliminando...' : 'Eliminar proveedor'}
+            {deleting ? "Eliminando..." : "Eliminar proveedor"}
           </button>
         </div>
       </div>
     </Modal>
-  )
+  );
 }
 
-export default DeleteProviderModal
+export default DeleteProviderModal;

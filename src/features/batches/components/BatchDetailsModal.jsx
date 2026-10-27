@@ -1,8 +1,8 @@
-import Modal from '../../../components/ui/Modal.jsx'
+import Modal from "../../../components/ui/Modal.jsx";
 
 function BatchDetailsModal({ batch, onClose }) {
-  const productName = batch.product?.name ?? batch.productName ?? '—'
-  const providerName = batch.provider?.name ?? batch.providerName ?? '—'
+  const productName = batch.product?.name ?? batch.productName ?? "—";
+  const providerName = batch.provider?.name ?? batch.providerName ?? "—";
 
   return (
     <Modal
@@ -26,7 +26,7 @@ function BatchDetailsModal({ batch, onClose }) {
         <dl className="batch-details-grid">
           <div>
             <dt>Código</dt>
-            <dd>{batch.code || '—'}</dd>
+            <dd>{batch.code || "—"}</dd>
           </div>
           <div>
             <dt>Producto</dt>
@@ -38,32 +38,34 @@ function BatchDetailsModal({ batch, onClose }) {
           </div>
           <div>
             <dt>Cantidad</dt>
-            <dd>{batch.quantityInitial ?? '—'}</dd>
+            <dd>{batch.quantityInitial ?? "—"}</dd>
           </div>
           <div>
             <dt>Cantidad disponible</dt>
-            <dd>{batch.quantityAvailable ?? '—'}</dd>
+            <dd>{batch.quantityAvailable ?? "—"}</dd>
           </div>
           <div>
             <dt>Fecha de ingreso</dt>
-            <dd>{batch.entryDate?.slice(0, 10) ?? '—'}</dd>
+            <dd>{batch.entryDate?.slice(0, 10) ?? "—"}</dd>
           </div>
           <div>
             <dt>Fecha de vencimiento</dt>
-            <dd>{batch.expirationDate?.slice(0, 10) ?? '—'}</dd>
+            <dd>{batch.expirationDate?.slice(0, 10) ?? "—"}</dd>
           </div>
           <div>
             <dt>Temperatura</dt>
-            <dd>{batch.temperature == null ? '—' : `${batch.temperature} °C`}</dd>
+            <dd>
+              {batch.temperature == null ? "—" : `${batch.temperature} °C`}
+            </dd>
           </div>
           <div className="batch-details-observation">
             <dt>Observación</dt>
-            <dd>{batch.observation || 'Sin observaciones.'}</dd>
+            <dd>{batch.observation || "Sin observaciones."}</dd>
           </div>
         </dl>
       </div>
     </Modal>
-  )
+  );
 }
 
-export default BatchDetailsModal
+export default BatchDetailsModal;

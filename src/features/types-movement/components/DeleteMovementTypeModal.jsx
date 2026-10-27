@@ -1,6 +1,12 @@
-import Modal from '../../../components/ui/Modal.jsx'
+import Modal from "../../../components/ui/Modal.jsx";
 
-function DeleteMovementTypeModal({ movementType, deleting, error, onConfirm, onCancel }) {
+function DeleteMovementTypeModal({
+  movementType,
+  deleting,
+  error,
+  onConfirm,
+  onCancel,
+}) {
   return (
     <Modal
       closeDisabled={deleting}
@@ -12,18 +18,32 @@ function DeleteMovementTypeModal({ movementType, deleting, error, onConfirm, onC
         <p>
           ¿Seguro que deseas eliminar <strong>{movementType.name}</strong>?
         </p>
-        {error && <p className="form-error" role="alert">{error}</p>}
+        {error && (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        )}
         <div className="entity-form-actions">
-          <button className="btn-secondary" disabled={deleting} onClick={onCancel} type="button">
+          <button
+            className="btn-secondary"
+            disabled={deleting}
+            onClick={onCancel}
+            type="button"
+          >
             Cancelar
           </button>
-          <button className="btn-danger" disabled={deleting} onClick={onConfirm} type="button">
-            {deleting ? 'Eliminando...' : 'Eliminar tipo'}
+          <button
+            className="btn-danger"
+            disabled={deleting}
+            onClick={onConfirm}
+            type="button"
+          >
+            {deleting ? "Eliminando..." : "Eliminar tipo"}
           </button>
         </div>
       </div>
     </Modal>
-  )
+  );
 }
 
-export default DeleteMovementTypeModal
+export default DeleteMovementTypeModal;

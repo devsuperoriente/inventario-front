@@ -1,4 +1,4 @@
-function PageHeading({ eyebrow, title, description, action, className = '' }) {
+function PageHeading({ eyebrow, title, description, action, className = "" }) {
   return (
     <div className={`page-heading ${className}`.trim()}>
       <div>
@@ -8,7 +8,7 @@ function PageHeading({ eyebrow, title, description, action, className = '' }) {
       </div>
       {action}
     </div>
-  )
+  );
 }
 
-export default PageHeading
+export default PageHeading;

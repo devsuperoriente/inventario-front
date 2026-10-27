@@ -1,11 +1,13 @@
 function EmptyState({ title, description }) {
   return (
     <div className="empty-state">
-      <span className="empty-state-icon" aria-hidden="true">+</span>
+      <span className="empty-state-icon" aria-hidden="true">
+        +
+      </span>
       <h2>{title}</h2>
       <p>{description}</p>
     </div>
-  )
+  );
 }
 
-export default EmptyState
+export default EmptyState;

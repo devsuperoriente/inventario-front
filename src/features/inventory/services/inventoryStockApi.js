@@ -1,5 +1,5 @@
-import { apiRequest } from '../../../services/apiClient.js'
+import { apiRequest } from "../../../services/apiClient.js";
 
-export function getStockByProduct(productId) {
-  return apiRequest(`/lotes/producto/${encodeURIComponent(productId)}/existencias`)
+export function getStock() {
+  return apiRequest("/lotes/existencias");
 }

@@ -2,7 +2,9 @@ function ClientFilters({ search, onSearchChange }) {
   return (
     <div className="inventory-filters">
       <label className="search-field">
-        <span className="sr-only">Buscar cliente por nombre, documento o contacto</span>
+        <span className="sr-only">
+          Buscar cliente por nombre, documento o contacto
+        </span>
         <span aria-hidden="true">Buscar</span>
         <input
           type="search"
@@ -12,7 +14,7 @@ function ClientFilters({ search, onSearchChange }) {
         />
       </label>
     </div>
-  )
+  );
 }
 
-export default ClientFilters
+export default ClientFilters;

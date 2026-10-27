@@ -1,5 +1,5 @@
-import EmptyState from '../../components/feedback/EmptyState.jsx'
-import PageHeading from '../../components/ui/PageHeading.jsx'
+import EmptyState from "../../components/feedback/EmptyState.jsx";
+import PageHeading from "../../components/ui/PageHeading.jsx";
 
 function ModulePlaceholderPage({ title, description }) {
   return (
@@ -16,7 +16,7 @@ function ModulePlaceholderPage({ title, description }) {
         />
       </section>
     </>
-  )
+  );
 }
 
-export default ModulePlaceholderPage
+export default ModulePlaceholderPage;

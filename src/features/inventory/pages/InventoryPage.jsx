@@ -1,127 +1,145 @@
-import { useEffect, useMemo, useState } from 'react'
-import EmptyState from '../../../components/feedback/EmptyState.jsx'
-import PageHeading from '../../../components/ui/PageHeading.jsx'
-import { getBatches } from '../../batches/services/batchesApi.js'
-import InventoryBalancesTable from '../components/InventoryBalancesTable.jsx'
-import InventoryMovementsTable from '../components/InventoryMovementsTable.jsx'
-import InventorySectionTabs from '../components/InventorySectionTabs.jsx'
-import { getInventoryMovements } from '../services/inventoryMovementsApi.js'
-import { groupBatchesByProduct } from '../utils/inventoryStock.js'
+import { useEffect, useMemo, useState } from "react";
+import EmptyState from "../../../components/feedback/EmptyState.jsx";
+import PageHeading from "../../../components/ui/PageHeading.jsx";
+import { getBatches } from "../../batches/services/batchesApi.js";
+import InventoryBalancesTable from "../components/InventoryBalancesTable.jsx";
+import InventoryMovementsTable from "../components/InventoryMovementsTable.jsx";
+import InventorySectionTabs from "../components/InventorySectionTabs.jsx";
+import { getInventoryMovements } from "../services/inventoryMovementsApi.js";
+import { getStock } from "../services/inventoryStockApi.js";
 import {
   getMovementBatch,
   getMovementDate,
-} from '../utils/inventorySelectors.js'
+} from "../utils/inventorySelectors.js";
 
 function InventoryPage() {
-  const [activeTab, setActiveTab] = useState('stock')
-  const [batches, setBatches] = useState([])
-  const [movements, setMovements] = useState([])
-  const [stockSearch, setStockSearch] = useState('')
-  const [movementSearch, setMovementSearch] = useState('')
-  const [movementDate, setMovementDate] = useState('')
-  const [batchesLoading, setBatchesLoading] = useState(true)
-  const [movementsLoading, setMovementsLoading] = useState(true)
-  const [batchesError, setBatchesError] = useState('')
-  const [movementsError, setMovementsError] = useState('')
+  const [activeTab, setActiveTab] = useState("stock");
+  const [stock, setStock] = useState([]);
+  const [batches, setBatches] = useState([]);
+  const [movements, setMovements] = useState([]);
+  const [stockSearch, setStockSearch] = useState("");
+  const [movementSearch, setMovementSearch] = useState("");
+  const [movementDate, setMovementDate] = useState("");
+  const [stockLoading, setStockLoading] = useState(true);
+  const [movementsLoading, setMovementsLoading] = useState(true);
+  const [stockError, setStockError] = useState("");
+  const [movementsError, setMovementsError] = useState("");
 
-  async function refreshBatches() {
-    setBatchesLoading(true)
-    setBatchesError('')
+  async function refreshStock() {
+    setStockLoading(true);
+    setStockError("");
     try {
-      const result = await getBatches()
-      if (!Array.isArray(result)) {
-        throw new Error('El endpoint de lotes debe responder con una lista.')
-      }
-      setBatches(result)
+      const result = await getStock();
+      const stockList = Array.isArray(result) ? result : (result?.stock ?? []);
+      setStock(stockList);
     } catch (error) {
-      console.error('Error al cargar existencias por lote:', error)
-      setBatchesError(error.message)
+      console.error("Error al cargar existencias:", error);
+      setStockError(error.message);
     } finally {
-      setBatchesLoading(false)
+      setStockLoading(false);
     }
   }
 
   async function refreshMovements() {
-    setMovementsLoading(true)
-    setMovementsError('')
+    setMovementsLoading(true);
+    setMovementsError("");
     try {
-      const result = await getInventoryMovements()
+      const result = await getInventoryMovements();
       if (!Array.isArray(result)) {
-        throw new Error('El endpoint de movimientos debe responder con una lista.')
+        throw new Error(
+          "El endpoint de movimientos debe responder con una lista.",
+        );
       }
-      setMovements(result)
+      setMovements(result);
     } catch (error) {
-      console.error('Error al cargar movimientos de inventario:', error)
-      setMovementsError(error.message)
+      console.error("Error al cargar movimientos de inventario:", error);
+      setMovementsError(error.message);
     } finally {
-      setMovementsLoading(false)
+      setMovementsLoading(false);
     }
   }
 
   useEffect(() => {
-    let isCurrent = true
-    getBatches()
+    let isCurrent = true;
+
+    // Cargar existencias desde /lotes/existencias
+    getStock()
       .then((result) => {
-        if (!Array.isArray(result)) {
-          throw new Error('El endpoint de lotes debe responder con una lista.')
-        }
-        if (isCurrent) setBatches(result)
+        const stockList = Array.isArray(result)
+          ? result
+          : (result?.stock ?? []);
+        if (isCurrent) setStock(stockList);
       })
       .catch((error) => {
-        console.error('Error al cargar existencias por lote:', error)
-        if (isCurrent) setBatchesError(error.message)
+        console.error("Error al cargar existencias:", error);
+        if (isCurrent) setStockError(error.message);
       })
       .finally(() => {
-        if (isCurrent) setBatchesLoading(false)
-      })
+        if (isCurrent) setStockLoading(false);
+      });
 
+    // Cargar lotes auxiliares para el detalle de movimientos
+    getBatches()
+      .then((result) => {
+        if (Array.isArray(result) && isCurrent) setBatches(result);
+      })
+      .catch((error) => {
+        console.error("Error al cargar lotes auxiliares:", error);
+      });
+
+    // Cargar movimientos de inventario
     getInventoryMovements()
       .then((result) => {
         if (!Array.isArray(result)) {
-          throw new Error('El endpoint de movimientos debe responder con una lista.')
+          throw new Error(
+            "El endpoint de movimientos debe responder con una lista.",
+          );
         }
-        if (isCurrent) setMovements(result)
+        if (isCurrent) setMovements(result);
       })
       .catch((error) => {
-        console.error('Error al cargar movimientos de inventario:', error)
-        if (isCurrent) setMovementsError(error.message)
+        console.error("Error al cargar movimientos de inventario:", error);
+        if (isCurrent) setMovementsError(error.message);
       })
       .finally(() => {
-        if (isCurrent) setMovementsLoading(false)
-      })
+        if (isCurrent) setMovementsLoading(false);
+      });
 
     return () => {
-      isCurrent = false
-    }
-  }, [])
+      isCurrent = false;
+    };
+  }, []);
 
   const batchesById = useMemo(
     () => new Map(batches.map((batch) => [String(batch.id), batch])),
     [batches],
-  )
+  );
 
-  const allInventoryProducts = useMemo(() => groupBatchesByProduct(batches), [batches])
-
-  const inventoryProducts = useMemo(() => {
-    const query = stockSearch.trim().toLocaleLowerCase()
-    return allInventoryProducts
-      .filter((product) => [
-        product.name,
-        ...product.batches.flatMap((batch) => [
-          batch.code,
-          batch.provider?.name,
-          batch.providerName,
-        ]),
-      ].some((value) => String(value ?? '').toLocaleLowerCase().includes(query)))
-      .sort((first, second) => first.name.localeCompare(second.name))
-  }, [allInventoryProducts, stockSearch])
+  // Filtrado de la lista de existencias según la caja de búsqueda
+  const filteredStock = useMemo(() => {
+    const query = stockSearch.trim().toLowerCase();
+    return stock
+      .filter((item) =>
+        [item.product, item.unitMeasurement].some((value) =>
+          String(value ?? "")
+            .toLowerCase()
+            .includes(query),
+        ),
+      )
+      .sort((a, b) =>
+        String(a.product ?? "").localeCompare(String(b.product ?? "")),
+      );
+  }, [stock, stockSearch]);
 
   const filteredMovements = useMemo(() => {
-    const query = movementSearch.trim().toLocaleLowerCase()
+    const query = movementSearch.trim().toLowerCase();
     return [...movements]
-      .filter((movement) => (!movementDate || getMovementDate(movement) === movementDate))
+      .filter(
+        (movement) =>
+          !movementDate || getMovementDate(movement) === movementDate,
+      )
       .filter((movement) => {
-        const batch = getMovementBatch(movement, batchesById)
+        const batch = getMovementBatch(movement, batchesById);
         const values = [
           movement.typeMovement?.name,
           movement.typeMovementName,
@@ -134,13 +152,19 @@ function InventoryPage() {
           movement.quantity,
           movement.balancePrevius,
           movement.balanceCurrent,
-        ]
-        return values.some((value) => String(value ?? '').toLocaleLowerCase().includes(query))
+        ];
+        return values.some((value) =>
+          String(value ?? "")
+            .toLowerCase()
+            .includes(query),
+        );
       })
-      .sort((first, second) => String(second.date ?? '').localeCompare(String(first.date ?? '')))
-  }, [batchesById, movementDate, movementSearch, movements])
+      .sort((first, second) =>
+        String(second.date ?? "").localeCompare(String(first.date ?? "")),
+      );
+  }, [batchesById, movementDate, movementSearch, movements]);
 
-  const productCount = allInventoryProducts.length
+  const productCount = stock.length;
 
   return (
     <>
@@ -148,12 +172,12 @@ function InventoryPage() {
         className="provider-page-heading"
         eyebrow="INVENTARIO"
         title="Inventario y movimientos"
-        description="Consulta el disponible agrupado por producto, revisa sus lotes y explora los movimientos."
+        description="Consulta el disponible total por producto y explora el historial de movimientos."
       />
 
       <div className="inventory-summary-grid">
         <article className="inventory-summary-card">
-          <span>Productos con lotes</span>
+          <span>Productos en inventario</span>
           <strong>{productCount}</strong>
         </article>
         <article className="inventory-summary-card">
@@ -172,35 +196,43 @@ function InventoryPage() {
         onTabChange={setActiveTab}
       />
 
-      {activeTab === 'stock' ? (
+      {activeTab === "stock" ? (
         <section className="panel inventory-panel">
           <div className="panel-heading inventory-ledger-heading">
             <div>
               <h2>Existencias por producto</h2>
-              <p>{inventoryProducts.length} de {productCount} productos</p>
+              <p>
+                {filteredStock.length} de {productCount} productos
+              </p>
             </div>
             <button
               className="btn-secondary"
-              disabled={batchesLoading}
-              onClick={refreshBatches}
+              disabled={stockLoading}
+              onClick={refreshStock}
               type="button"
             >
-              {batchesLoading ? 'Actualizando...' : 'Actualizar'}
+              {stockLoading ? "Actualizando..." : "Actualizar"}
             </button>
           </div>
-          {batchesError ? (
+          {stockError ? (
             <div className="feature-load-error" role="alert">
-              <p>No se pudieron cargar las existencias: {batchesError}</p>
-              <button className="btn-secondary" onClick={refreshBatches} type="button">
+              <p>No se pudieron cargar las existencias: {stockError}</p>
+              <button
+                className="btn-secondary"
+                onClick={refreshStock}
+                type="button"
+              >
                 Reintentar
               </button>
             </div>
-          ) : batchesLoading ? (
-            <p className="feature-loading" role="status">Cargando existencias...</p>
-          ) : batches.length === 0 ? (
+          ) : stockLoading ? (
+            <p className="feature-loading" role="status">
+              Cargando existencias...
+            </p>
+          ) : stock.length === 0 ? (
             <EmptyState
-              title="Aún no hay lotes en inventario"
-              description="Las existencias aparecerán cuando se registren lotes."
+              title="Aún no hay existencias en inventario"
+              description="Las existencias aparecerán cuando se registren en el sistema."
             />
           ) : (
             <>
@@ -210,13 +242,16 @@ function InventoryPage() {
                   <span aria-hidden="true">Buscar</span>
                   <input
                     onChange={(event) => setStockSearch(event.target.value)}
-                    placeholder="Producto, lote o proveedor"
+                    placeholder="Buscar producto o unidad"
                     type="search"
                     value={stockSearch}
                   />
                 </label>
               </div>
-              <InventoryBalancesTable products={inventoryProducts} />
+              <InventoryBalancesTable
+                products={filteredStock}
+                batches={batches}
+              />
             </>
           )}
         </section>
@@ -225,7 +260,9 @@ function InventoryPage() {
           <div className="panel-heading inventory-ledger-heading">
             <div>
               <h2>Historial de movimientos</h2>
-              <p>{filteredMovements.length} de {movements.length} movimientos</p>
+              <p>
+                {filteredMovements.length} de {movements.length} movimientos
+              </p>
             </div>
             <button
               className="btn-secondary"
@@ -233,18 +270,24 @@ function InventoryPage() {
               onClick={refreshMovements}
               type="button"
             >
-              {movementsLoading ? 'Actualizando...' : 'Actualizar'}
+              {movementsLoading ? "Actualizando..." : "Actualizar"}
             </button>
           </div>
           {movementsError ? (
             <div className="feature-load-error" role="alert">
               <p>No se pudieron cargar los movimientos: {movementsError}</p>
-              <button className="btn-secondary" onClick={refreshMovements} type="button">
+              <button
+                className="btn-secondary"
+                onClick={refreshMovements}
+                type="button"
+              >
                 Reintentar
               </button>
             </div>
           ) : movementsLoading ? (
-            <p className="feature-loading" role="status">Cargando movimientos...</p>
+            <p className="feature-loading" role="status">
+              Cargando movimientos...
+            </p>
           ) : movements.length === 0 ? (
             <EmptyState
               title="Aún no hay movimientos registrados"
@@ -282,7 +325,7 @@ function InventoryPage() {
         </section>
       )}
     </>
-  )
+  );
 }
 
-export default InventoryPage
+export default InventoryPage;

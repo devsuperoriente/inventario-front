@@ -1,147 +1,152 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import EmptyState from '../../../components/feedback/EmptyState.jsx'
-import Toast from '../../../components/feedback/Toast.jsx'
-import PageHeading from '../../../components/ui/PageHeading.jsx'
-import CategoryFilters from '../components/CategoryFilters.jsx'
-import CategoryForm from '../components/CategoryForm.jsx'
-import CategoryTable from '../components/CategoryTable.jsx'
-import DeleteCategoryModal from '../components/DeleteCategoryModal.jsx'
+import { useCallback, useEffect, useMemo, useState } from "react";
+import EmptyState from "../../../components/feedback/EmptyState.jsx";
+import Toast from "../../../components/feedback/Toast.jsx";
+import PageHeading from "../../../components/ui/PageHeading.jsx";
+import CategoryFilters from "../components/CategoryFilters.jsx";
+import CategoryForm from "../components/CategoryForm.jsx";
+import CategoryTable from "../components/CategoryTable.jsx";
+import DeleteCategoryModal from "../components/DeleteCategoryModal.jsx";
 import {
   createCategory,
   deleteCategory,
   getCategories,
   updateCategory,
-} from '../services/categoriesApi.js'
+} from "../services/categoriesApi.js";
 
 function CategoriesPage() {
-  const [categories, setCategories] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [loadError, setLoadError] = useState(null)
-  const [search, setSearch] = useState('')
-  const [formOpen, setFormOpen] = useState(false)
-  const [editingCategory, setEditingCategory] = useState(null)
-  const [formError, setFormError] = useState(null)
-  const [saving, setSaving] = useState(false)
-  const [categoryToDelete, setCategoryToDelete] = useState(null)
-  const [deleteError, setDeleteError] = useState(null)
-  const [deletingId, setDeletingId] = useState(null)
-  const [toast, setToast] = useState(null)
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const [search, setSearch] = useState("");
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [formError, setFormError] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState(null);
+  const [deleteError, setDeleteError] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+  const [toast, setToast] = useState(null);
 
-  const dismissToast = useCallback(() => setToast(null), [])
+  const dismissToast = useCallback(() => setToast(null), []);
 
   const fetchCategories = useCallback(async () => {
     try {
-      const data = await getCategories()
-      setCategories(data)
-      setLoadError(null)
+      const data = await getCategories();
+      setCategories(data);
+      setLoadError(null);
     } catch (err) {
-      console.error('Error al cargar categorias:', err)
-      setLoadError(err.message)
+      console.error("Error al cargar categorias:", err);
+      setLoadError(err.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    let isCurrent = true
+    let isCurrent = true;
 
     getCategories()
       .then((data) => {
-        if (isCurrent) setCategories(data)
+        if (isCurrent) setCategories(data);
       })
       .catch((err) => {
-        console.error('Error al cargar categorias:', err)
-        if (isCurrent) setLoadError(err.message)
+        console.error("Error al cargar categorias:", err);
+        if (isCurrent) setLoadError(err.message);
       })
       .finally(() => {
-        if (isCurrent) setLoading(false)
-      })
+        if (isCurrent) setLoading(false);
+      });
 
     return () => {
-      isCurrent = false
-    }
-  }, [])
+      isCurrent = false;
+    };
+  }, []);
 
   const filteredCategories = useMemo(() => {
-    const normalizedSearch = search.trim().toLocaleLowerCase()
+    const normalizedSearch = search.trim().toLocaleLowerCase();
 
     return categories.filter((category) =>
-      [category.name, category.description]
-        .some((value) => String(value ?? '').toLocaleLowerCase().includes(normalizedSearch)),
-    )
-  }, [categories, search])
+      [category.name, category.description].some((value) =>
+        String(value ?? "")
+          .toLocaleLowerCase()
+          .includes(normalizedSearch),
+      ),
+    );
+  }, [categories, search]);
 
   async function handleSaveCategory(formData) {
-    setSaving(true)
-    setFormError(null)
-    setToast(null)
+    setSaving(true);
+    setFormError(null);
+    setToast(null);
 
     try {
-      const wasEditing = Boolean(editingCategory)
+      const wasEditing = Boolean(editingCategory);
       if (editingCategory) {
-        await updateCategory(editingCategory.id, formData)
+        await updateCategory(editingCategory.id, formData);
       } else {
-        await createCategory(formData)
+        await createCategory(formData);
       }
 
-      setFormOpen(false)
-      setEditingCategory(null)
-      setLoading(true)
-      await fetchCategories()
+      setFormOpen(false);
+      setEditingCategory(null);
+      setLoading(true);
+      await fetchCategories();
       setToast({
-        type: 'success',
+        type: "success",
         message: wasEditing
-          ? 'Categoria actualizada correctamente.'
-          : 'Categoria creada correctamente.',
-      })
+          ? "Categoria actualizada correctamente."
+          : "Categoria creada correctamente.",
+      });
     } catch (err) {
-      console.error('Error al guardar categoria:', err)
-      setFormError(err.message)
+      console.error("Error al guardar categoria:", err);
+      setFormError(err.message);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
   }
 
   function openCreateForm() {
-    setEditingCategory(null)
-    setFormError(null)
-    setFormOpen(true)
+    setEditingCategory(null);
+    setFormError(null);
+    setFormOpen(true);
   }
 
   function openEditForm(category) {
-    setEditingCategory(category)
-    setFormError(null)
-    setFormOpen(true)
+    setEditingCategory(category);
+    setFormError(null);
+    setFormOpen(true);
   }
 
   async function handleDeleteCategory() {
-    if (!categoryToDelete) return
-    const category = categoryToDelete
+    if (!categoryToDelete) return;
+    const category = categoryToDelete;
 
-    setDeletingId(category.id)
-    setDeleteError(null)
-    setToast(null)
+    setDeletingId(category.id);
+    setDeleteError(null);
+    setToast(null);
 
     try {
-      await deleteCategory(category.id)
+      await deleteCategory(category.id);
       setCategories((currentCategories) =>
-        currentCategories.filter((currentCategory) => currentCategory.id !== category.id),
-      )
-      setCategoryToDelete(null)
+        currentCategories.filter(
+          (currentCategory) => currentCategory.id !== category.id,
+        ),
+      );
+      setCategoryToDelete(null);
       setToast({
-        type: 'success',
+        type: "success",
         message: `Categoria "${category.name}" eliminada correctamente.`,
-      })
+      });
     } catch (err) {
-      console.error('Error al eliminar categoria:', err)
-      const message = `No se pudo eliminar la categoria "${category.name}". ${err.message}`
-      setDeleteError(message)
+      console.error("Error al eliminar categoria:", err);
+      const message = `No se pudo eliminar la categoria "${category.name}". ${err.message}`;
+      setDeleteError(message);
       setToast({
-        type: 'warning',
+        type: "warning",
         message: `${message} Verifica si esta siendo usada en inventario.`,
-      })
+      });
     } finally {
-      setDeletingId(null)
+      setDeletingId(null);
     }
   }
 
@@ -158,9 +163,15 @@ function CategoriesPage() {
         <div className="panel-heading provider-panel-heading">
           <div>
             <h2>Categorias registradas</h2>
-            <p>{filteredCategories.length} de {categories.length} categorias</p>
+            <p>
+              {filteredCategories.length} de {categories.length} categorias
+            </p>
           </div>
-          <button className="btn-primary" onClick={openCreateForm} type="button">
+          <button
+            className="btn-primary"
+            onClick={openCreateForm}
+            type="button"
+          >
             + Nueva categoria
           </button>
         </div>
@@ -171,9 +182,9 @@ function CategoriesPage() {
             <button
               className="btn-secondary"
               onClick={() => {
-                setLoading(true)
-                setLoadError(null)
-                fetchCategories()
+                setLoading(true);
+                setLoadError(null);
+                fetchCategories();
               }}
               type="button"
             >
@@ -181,7 +192,9 @@ function CategoriesPage() {
             </button>
           </div>
         ) : loading ? (
-          <p className="feature-loading" role="status">Cargando categorias...</p>
+          <p className="feature-loading" role="status">
+            Cargando categorias...
+          </p>
         ) : categories.length === 0 ? (
           <EmptyState
             title="Aun no hay categorias configuradas"
@@ -194,8 +207,8 @@ function CategoriesPage() {
               deletingId={deletingId}
               items={filteredCategories}
               onDelete={(category) => {
-                setCategoryToDelete(category)
-                setDeleteError(null)
+                setCategoryToDelete(category);
+                setDeleteError(null);
               }}
               onEdit={openEditForm}
             />
@@ -207,11 +220,11 @@ function CategoriesPage() {
         <CategoryForm
           error={formError}
           initialValues={editingCategory}
-          key={editingCategory?.id ?? 'new-category'}
+          key={editingCategory?.id ?? "new-category"}
           onCancel={() => {
-            setFormOpen(false)
-            setEditingCategory(null)
-            setFormError(null)
+            setFormOpen(false);
+            setEditingCategory(null);
+            setFormError(null);
           }}
           onSubmit={handleSaveCategory}
           submitting={saving}
@@ -225,8 +238,8 @@ function CategoriesPage() {
           error={deleteError}
           onCancel={() => {
             if (deletingId === null) {
-              setCategoryToDelete(null)
-              setDeleteError(null)
+              setCategoryToDelete(null);
+              setDeleteError(null);
             }
           }}
           onConfirm={handleDeleteCategory}
@@ -235,13 +248,13 @@ function CategoriesPage() {
 
       <Toast
         duration={4500}
-        key={toast?.message ?? 'empty-category-toast'}
+        key={toast?.message ?? "empty-category-toast"}
         message={toast?.message}
         onClose={dismissToast}
-        type={toast?.type ?? 'success'}
+        type={toast?.type ?? "success"}
       />
     </>
-  )
+  );
 }
 
-export default CategoriesPage
+export default CategoriesPage;

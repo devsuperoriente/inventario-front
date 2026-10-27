@@ -12,7 +12,7 @@ function OrderFilters({ search, onSearchChange }) {
         />
       </label>
     </div>
-  )
+  );
 }
 
-export default OrderFilters
+export default OrderFilters;

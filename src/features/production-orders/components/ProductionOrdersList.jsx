@@ -1,46 +1,61 @@
-import { useMemo, useState } from 'react'
-import EmptyState from '../../../components/feedback/EmptyState.jsx'
-import { getOrderDate } from '../utils/consolidateOrderDetails.js'
+import { useMemo, useState } from "react";
+import EmptyState from "../../../components/feedback/EmptyState.jsx";
+import { getOrderDate } from "../utils/consolidateOrderDetails.js";
 
 function getProductionOrderLabel(order) {
-  return order.numberOrder ?? `#${order.id}`
+  return order.numberOrder ?? `#${order.id}`;
 }
 
 function getUserLabel(user) {
-  if (typeof user === 'string') return user
-  return user?.username ?? user?.name ?? user?.email ?? '—'
+  if (typeof user === "string") return user;
+  return user?.username ?? user?.name ?? user?.email ?? "—";
 }
 
-function ProductionOrdersList({ orders, loading, error, onRetry, onViewMaterials }) {
-  const [search, setSearch] = useState('')
-  const [dateFilter, setDateFilter] = useState('')
+function ProductionOrdersList({
+  orders,
+  loading,
+  error,
+  onRetry,
+  onViewMaterials,
+}) {
+  const [search, setSearch] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
   const filteredOrders = useMemo(() => {
-    const query = search.trim().toLocaleLowerCase()
+    const query = search.trim().toLocaleLowerCase();
     return [...orders]
-      .filter((order) => (!dateFilter || getOrderDate(order) === dateFilter))
-      .filter((order) => [
-        getProductionOrderLabel(order),
-        order.product?.name,
-        order.productName,
-        order.state?.name,
-        order.quantitySheduled,
-        order.quantityProduced,
-        order.stateName,
-        getUserLabel(order.user),
-        order.observation,
-      ].some((value) => String(value ?? '').toLocaleLowerCase().includes(query)))
-      .sort((first, second) => (
-        getOrderDate(second).localeCompare(getOrderDate(first))
-        || Number(second.id) - Number(first.id)
-      ))
-  }, [dateFilter, orders, search])
+      .filter((order) => !dateFilter || getOrderDate(order) === dateFilter)
+      .filter((order) =>
+        [
+          getProductionOrderLabel(order),
+          order.product?.name,
+          order.productName,
+          order.state?.name,
+          order.quantitySheduled,
+          order.quantityProduced,
+          order.stateName,
+          getUserLabel(order.user),
+          order.observation,
+        ].some((value) =>
+          String(value ?? "")
+            .toLocaleLowerCase()
+            .includes(query),
+        ),
+      )
+      .sort(
+        (first, second) =>
+          getOrderDate(second).localeCompare(getOrderDate(first)) ||
+          Number(second.id) - Number(first.id),
+      );
+  }, [dateFilter, orders, search]);
 
   return (
     <section className="panel provider-panel production-orders-panel production-orders-list">
       <div className="panel-heading provider-panel-heading">
         <div>
           <h2>Órdenes de producción creadas</h2>
-          <p>{filteredOrders.length} de {orders.length} órdenes</p>
+          <p>
+            {filteredOrders.length} de {orders.length} órdenes
+          </p>
         </div>
         <button
           className="btn-secondary"
@@ -48,17 +63,21 @@ function ProductionOrdersList({ orders, loading, error, onRetry, onViewMaterials
           onClick={onRetry}
           type="button"
         >
-          {loading ? 'Actualizando...' : 'Actualizar'}
+          {loading ? "Actualizando..." : "Actualizar"}
         </button>
       </div>
 
       {error ? (
         <div className="feature-load-error" role="alert">
           <p>No se pudieron cargar las órdenes de producción: {error}</p>
-          <button className="btn-secondary" onClick={onRetry} type="button">Reintentar</button>
+          <button className="btn-secondary" onClick={onRetry} type="button">
+            Reintentar
+          </button>
         </div>
       ) : loading ? (
-        <p className="feature-loading" role="status">Cargando órdenes de producción...</p>
+        <p className="feature-loading" role="status">
+          Cargando órdenes de producción...
+        </p>
       ) : orders.length === 0 ? (
         <EmptyState
           title="Aún no hay órdenes de producción"
@@ -95,7 +114,9 @@ function ProductionOrdersList({ orders, loading, error, onRetry, onViewMaterials
           ) : (
             <div className="table-wrap production-orders-records-wrap">
               <table className="production-orders-records-table">
-                <caption className="sr-only">Todas las órdenes de producción registradas</caption>
+                <caption className="sr-only">
+                  Todas las órdenes de producción registradas
+                </caption>
                 <thead>
                   <tr>
                     <th scope="col">Número</th>
@@ -112,18 +133,30 @@ function ProductionOrdersList({ orders, loading, error, onRetry, onViewMaterials
                 <tbody>
                   {filteredOrders.map((order) => (
                     <tr key={order.id}>
-                      <td data-label="Número"><strong>{getProductionOrderLabel(order)}</strong></td>
-                      <td data-label="Fecha">{getOrderDate(order) || '—'}</td>
-                      <td data-label="Producto">{order.product?.name ?? order.productName ?? '—'}</td>
-                      <td data-label="Programada">{order.quantitySheduled ?? '—'}</td>
-                      <td data-label="Producida">{order.quantityProduced ?? '—'}</td>
+                      <td data-label="Número">
+                        <strong>{getProductionOrderLabel(order)}</strong>
+                      </td>
+                      <td data-label="Fecha">{getOrderDate(order) || "—"}</td>
+                      <td data-label="Producto">
+                        {order.product?.name ?? order.productName ?? "—"}
+                      </td>
+                      <td data-label="Programada">
+                        {order.quantitySheduled ?? "—"}
+                      </td>
+                      <td data-label="Producida">
+                        {order.quantityProduced ?? "—"}
+                      </td>
                       <td data-label="Estado">
                         <span className="production-order-status">
-                          {order.state?.name ?? order.stateName ?? '—'}
+                          {order.state?.name ?? order.stateName ?? "—"}
                         </span>
                       </td>
-                      <td data-label="Responsable">{getUserLabel(order.user)}</td>
-                      <td data-label="Observación">{order.observation || '—'}</td>
+                      <td data-label="Responsable">
+                        {getUserLabel(order.user)}
+                      </td>
+                      <td data-label="Observación">
+                        {order.observation || "—"}
+                      </td>
                       <td data-label="Insumos">
                         <button
                           aria-label={`Ver insumos requeridos de ${getProductionOrderLabel(order)}`}
@@ -143,7 +176,7 @@ function ProductionOrdersList({ orders, loading, error, onRetry, onViewMaterials
         </>
       )}
     </section>
-  )
+  );
 }
 
-export default ProductionOrdersList
+export default ProductionOrdersList;

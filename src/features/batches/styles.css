@@ -1,0 +1,118 @@
+.batch-table {
+  min-width: 1160px;
+}
+
+.batch-table th,
+.batch-table td {
+  padding-right: 12px;
+  padding-left: 12px;
+}
+
+.batch-column-actions {
+  text-align: right;
+}
+
+.batch-column-observation {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.batch-column-actions .table-actions {
+  justify-content: flex-end;
+}
+
+.batch-thumbnail {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  object-fit: cover;
+}
+
+.batch-details-modal {
+  width: min(100%, 760px);
+}
+
+.batch-details-content {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1.1fr);
+  gap: 22px;
+  padding: 20px 24px 24px;
+}
+
+.batch-details-image {
+  display: grid;
+  min-height: 230px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid #e5ebe6;
+  border-radius: 12px;
+  background: #f7f9f7;
+}
+
+.batch-details-image a {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  justify-items: center;
+  gap: 10px;
+  padding: 12px;
+  color: #4c7556;
+  font-size: 11px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.batch-details-image img {
+  display: block;
+  width: 100%;
+  height: 240px;
+  border-radius: 7px;
+  object-fit: contain;
+}
+
+.batch-details-image a:hover span {
+  text-decoration: underline;
+}
+
+.batch-details-image > p {
+  margin: 16px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.batch-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: 0 16px;
+  margin: 0;
+}
+
+.batch-details-grid > div {
+  min-width: 0;
+  padding: 12px 0;
+  border-bottom: 1px solid #edf0ed;
+}
+
+.batch-details-grid dt {
+  margin-bottom: 5px;
+  color: #849087;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.batch-details-grid dd {
+  margin: 0;
+  color: #344139;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.batch-details-grid .batch-details-observation {
+  grid-column: 1 / -1;
+}

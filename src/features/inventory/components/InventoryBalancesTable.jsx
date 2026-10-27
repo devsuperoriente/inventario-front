@@ -1,67 +1,75 @@
-import { useState } from 'react'
-import EmptyState from '../../../components/feedback/EmptyState.jsx'
-import InventoryProductStockModal from './InventoryProductStockModal.jsx'
-import { formatStockQuantity } from '../utils/inventoryStock.js'
+import { useState } from "react";
+import EmptyState from "../../../components/feedback/EmptyState.jsx";
+import InventoryProductStockModal from "./InventoryProductStockModal.jsx";
+import { formatStockQuantity } from "../utils/inventoryStock.js";
 
-function InventoryBalancesTable({ products }) {
-  const [selectedProduct, setSelectedProduct] = useState(null)
+function InventoryBalancesTable({ products, batches = [] }) {
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
-  if (products.length === 0) {
+  if (!products || products.length === 0) {
     return (
       <EmptyState
         title="No se encontraron existencias"
-        description="Prueba otra búsqueda o registra lotes para consultar el inventario."
+        description="Prueba otra búsqueda o registra existencias para consultar el inventario."
       />
-    )
+    );
   }
 
   return (
     <>
       <div className="table-wrap inventory-ledger-table-wrap">
         <table className="inventory-ledger-table inventory-product-stock-table">
-          <caption className="sr-only">Existencias actuales agrupadas por producto</caption>
+          <caption className="sr-only">
+            Existencias actuales agrupadas por producto
+          </caption>
           <thead>
             <tr>
               <th scope="col">Producto</th>
-              <th scope="col">Lotes</th>
               <th scope="col">Disponible total</th>
-              <th scope="col">Próximo vencimiento</th>
               <th scope="col">Detalle</th>
             </tr>
           </thead>
           <tbody>
-            {products.map((product) => {
-              const nextExpiration = product.batches
-                .map((batch) => String(batch.expirationDate ?? '').slice(0, 10))
-                .filter(Boolean)
-                .sort()[0]
+            {products.map((item) => {
+              // Filtramos los lotes que corresponden a este productId
+              const productBatches = batches.filter(
+                (batch) =>
+                  String(batch.productId ?? batch.product?.id) ===
+                  String(item.productId),
+              );
+
               return (
-                <tr key={product.key}>
+                <tr key={item.productId}>
                   <td data-label="Producto">
-                    <strong>{product.name}</strong>
-                    {product.unit && <span className="table-subtext">{product.unit}</span>}
+                    <strong>{item.product}</strong>
                   </td>
-                  <td data-label="Lotes">{product.batches.length}</td>
                   <td data-label="Disponible total">
                     <strong>
-                      {formatStockQuantity(product.available)}
-                      {product.unit ? ` ${product.unit}` : ''}
+                      {formatStockQuantity(item.quantityStock)}
+                      {item.unitMeasurement ? ` ${item.unitMeasurement}` : ""}
                     </strong>
                   </td>
-                  <td data-label="Próximo vencimiento">{nextExpiration || '—'}</td>
                   <td data-label="Detalle">
                     <button
-                      aria-label={`Ver lotes de ${product.name}`}
+                      aria-label={`Ver lotes de ${item.product}`}
                       className="inventory-product-details-button"
-                      disabled={product.id == null}
-                      onClick={() => setSelectedProduct(product)}
+                      disabled={item.productId == null}
+                      onClick={() =>
+                        setSelectedProduct({
+                          id: item.productId,
+                          name: item.product,
+                          unit: item.unitMeasurement,
+                          available: item.quantityStock,
+                          batches: productBatches,
+                        })
+                      }
                       type="button"
                     >
                       Ver lotes
                     </button>
                   </td>
                 </tr>
-              )
+              );
             })}
           </tbody>
         </table>
@@ -73,7 +81,7 @@ function InventoryBalancesTable({ products }) {
         />
       )}
     </>
-  )
+  );
 }
 
-export default InventoryBalancesTable
+export default InventoryBalancesTable;

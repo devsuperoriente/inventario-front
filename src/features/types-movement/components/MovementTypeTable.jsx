@@ -1,18 +1,14 @@
-import EmptyState from '../../../components/feedback/EmptyState.jsx'
+import EmptyState from "../../../components/feedback/EmptyState.jsx";
 
 const directionLabels = {
-  entrada: 'Entrada',
-  salida: 'Salida',
-  ajuste: 'Ajuste',
-}
+  entrada: "Entrada",
+  salida: "Salida",
+  ajuste: "Ajuste",
+};
 
 function MovementTypeTable({ items, onEdit, onDelete, deletingId }) {
   if (items.length === 0) {
-    return (
-      <EmptyState
-        title="No se encontraron tipos de movimiento"
-      />
-    )
+    return <EmptyState title="No se encontraron tipos de movimiento" />;
   }
 
   return (
@@ -22,13 +18,17 @@ function MovementTypeTable({ items, onEdit, onDelete, deletingId }) {
         <thead>
           <tr>
             <th scope="col">Tipo de movimiento</th>
-            <th className="movement-type-actions" scope="col">Acciones</th>
+            <th className="movement-type-actions" scope="col">
+              Acciones
+            </th>
           </tr>
         </thead>
         <tbody>
           {items.map((movementType) => (
             <tr key={movementType.id}>
-              <td><strong>{movementType.name}</strong></td>
+              <td>
+                <strong>{movementType.name}</strong>
+              </td>
               <td className="movement-type-actions">
                 <div className="table-actions">
                   <button
@@ -44,7 +44,7 @@ function MovementTypeTable({ items, onEdit, onDelete, deletingId }) {
                     <span className="action-label">Modificar</span>
                   </button>
                   <button
-                    aria-label={`${deletingId === movementType.id ? 'Eliminando' : 'Eliminar'} tipo ${movementType.name}`}
+                    aria-label={`${deletingId === movementType.id ? "Eliminando" : "Eliminar"} tipo ${movementType.name}`}
                     className="table-action danger"
                     disabled={deletingId === movementType.id}
                     onClick={() => onDelete(movementType)}
@@ -55,7 +55,9 @@ function MovementTypeTable({ items, onEdit, onDelete, deletingId }) {
                       <path d="M3.5 5.5h13M8 5.5V3.8h4v1.7m-6.5 0 .7 10.7h7.6l.7-10.7M8.2 8.5v5m3.6-5v5" />
                     </svg>
                     <span className="action-label">
-                      {deletingId === movementType.id ? 'Eliminando...' : 'Eliminar'}
+                      {deletingId === movementType.id
+                        ? "Eliminando..."
+                        : "Eliminar"}
                     </span>
                   </button>
                 </div>
@@ -65,7 +67,7 @@ function MovementTypeTable({ items, onEdit, onDelete, deletingId }) {
         </tbody>
       </table>
     </div>
-  )
+  );
 }
 
-export default MovementTypeTable
+export default MovementTypeTable;

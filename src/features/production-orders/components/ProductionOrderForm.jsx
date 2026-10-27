@@ -24,7 +24,9 @@ function ProductionOrderForm({
           >
             <option value="">Selecciona un estado</option>
             {states.map((state) => (
-              <option key={state.id} value={state.id}>{state.name}</option>
+              <option key={state.id} value={state.id}>
+                {state.name}
+              </option>
             ))}
           </select>
         </label>
@@ -45,26 +47,37 @@ function ProductionOrderForm({
       )}
       {dateChanged && (
         <p className="form-error" role="status">
-          La fecha cambió. Consolida los pedidos nuevamente antes de crear órdenes.
+          La fecha cambió. Consolida los pedidos nuevamente antes de crear
+          órdenes.
         </p>
       )}
-      {createError && <p className="form-error" role="alert">{createError}</p>}
+      {createError && (
+        <p className="form-error" role="alert">
+          {createError}
+        </p>
+      )}
       <div className="entity-form-actions">
         <button
           className="btn-primary"
-          disabled={creating || dateChanged || pendingCount === 0 || invalidQuantities || !stateId}
+          disabled={
+            creating ||
+            dateChanged ||
+            pendingCount === 0 ||
+            invalidQuantities ||
+            !stateId
+          }
           onClick={onCreate}
           type="button"
         >
           {creating
-            ? 'Creando órdenes...'
+            ? "Creando órdenes..."
             : pendingCount === 0
-              ? 'Órdenes creadas'
-              : `Crear ${pendingCount} orden${pendingCount === 1 ? '' : 'es'} de producción`}
+              ? "Órdenes creadas"
+              : `Crear ${pendingCount} orden${pendingCount === 1 ? "" : "es"} de producción`}
         </button>
       </div>
     </div>
-  )
+  );
 }
 
-export default ProductionOrderForm
+export default ProductionOrderForm;

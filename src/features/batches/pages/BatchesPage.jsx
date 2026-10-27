@@ -1,40 +1,40 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import EmptyState from '../../../components/feedback/EmptyState.jsx'
-import Toast from '../../../components/feedback/Toast.jsx'
-import PageHeading from '../../../components/ui/PageHeading.jsx'
-import { getProducts } from '../../products/services/productsApi.js'
-import { getProviders } from '../../providers/services/ProviderApi.js'
-import BatchFilters from '../components/BatchFilters.jsx'
-import BatchDetailsModal from '../components/BatchDetailsModal.jsx'
-import BatchForm from '../components/BatchForm.jsx'
-import BatchTable from '../components/BatchTable.jsx'
-import DeleteBatchModal from '../components/DeleteBatchModal.jsx'
+import { useCallback, useEffect, useMemo, useState } from "react";
+import EmptyState from "../../../components/feedback/EmptyState.jsx";
+import Toast from "../../../components/feedback/Toast.jsx";
+import PageHeading from "../../../components/ui/PageHeading.jsx";
+import { getProducts } from "../../products/services/productsApi.js";
+import { getProviders } from "../../providers/services/ProviderApi.js";
+import BatchFilters from "../components/BatchFilters.jsx";
+import BatchDetailsModal from "../components/BatchDetailsModal.jsx";
+import BatchForm from "../components/BatchForm.jsx";
+import BatchTable from "../components/BatchTable.jsx";
+import DeleteBatchModal from "../components/DeleteBatchModal.jsx";
 import {
   createBatch,
   deleteBatch,
   getBatches,
   updateBatch,
   uploadBatchImage,
-} from '../services/batchesApi.js'
+} from "../services/batchesApi.js";
 
 function BatchesPage() {
-  const [batches, setBatches] = useState([])
-  const [products, setProducts] = useState([])
-  const [providers, setProviders] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [loadError, setLoadError] = useState('')
-  const [search, setSearch] = useState('')
-  const [formOpen, setFormOpen] = useState(false)
-  const [editingBatch, setEditingBatch] = useState(null)
-  const [formError, setFormError] = useState('')
-  const [saving, setSaving] = useState(false)
-  const [batchToDelete, setBatchToDelete] = useState(null)
-  const [viewingBatch, setViewingBatch] = useState(null)
-  const [deleteError, setDeleteError] = useState('')
-  const [deletingId, setDeletingId] = useState(null)
-  const [toast, setToast] = useState(null)
+  const [batches, setBatches] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [providers, setProviders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [search, setSearch] = useState("");
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingBatch, setEditingBatch] = useState(null);
+  const [formError, setFormError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [batchToDelete, setBatchToDelete] = useState(null);
+  const [viewingBatch, setViewingBatch] = useState(null);
+  const [deleteError, setDeleteError] = useState("");
+  const [deletingId, setDeletingId] = useState(null);
+  const [toast, setToast] = useState(null);
 
-  const dismissToast = useCallback(() => setToast(null), [])
+  const dismissToast = useCallback(() => setToast(null), []);
 
   const fetchData = useCallback(async () => {
     try {
@@ -42,116 +42,129 @@ function BatchesPage() {
         getBatches(),
         getProducts(),
         getProviders(),
-      ])
-      setBatches(batchData)
-      setProducts(productData)
-      setProviders(providerData)
-      setLoadError('')
+      ]);
+      setBatches(batchData);
+      setProducts(productData);
+      setProviders(providerData);
+      setLoadError("");
     } catch (error) {
-      console.error('Error al cargar lotes, productos o proveedores:', error)
-      setLoadError(error.message)
+      console.error("Error al cargar lotes, productos o proveedores:", error);
+      setLoadError(error.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    let isCurrent = true
+    let isCurrent = true;
 
     Promise.all([getBatches(), getProducts(), getProviders()])
       .then(([batchData, productData, providerData]) => {
-        if (!isCurrent) return
-        setBatches(batchData)
-        setProducts(productData)
-        setProviders(providerData)
+        if (!isCurrent) return;
+        setBatches(batchData);
+        setProducts(productData);
+        setProviders(providerData);
       })
       .catch((error) => {
-        console.error('Error al cargar lotes, productos o proveedores:', error)
-        if (isCurrent) setLoadError(error.message)
+        console.error("Error al cargar lotes, productos o proveedores:", error);
+        if (isCurrent) setLoadError(error.message);
       })
       .finally(() => {
-        if (isCurrent) setLoading(false)
-      })
+        if (isCurrent) setLoading(false);
+      });
 
     return () => {
-      isCurrent = false
-    }
-  }, [])
+      isCurrent = false;
+    };
+  }, []);
 
   const filteredBatches = useMemo(() => {
-    const normalizedSearch = search.trim().toLocaleLowerCase()
-    return batches.filter((batch) => [
-      batch.product?.name,
-      batch.productName,
-      batch.provider?.name,
-      batch.providerName,
-      batch.observation,
-    ].some((value) => String(value ?? '').toLocaleLowerCase().includes(normalizedSearch)))
-  }, [batches, search])
+    const normalizedSearch = search.trim().toLocaleLowerCase();
+    return batches.filter((batch) =>
+      [
+        batch.product?.name,
+        batch.productName,
+        batch.provider?.name,
+        batch.providerName,
+        batch.observation,
+      ].some((value) =>
+        String(value ?? "")
+          .toLocaleLowerCase()
+          .includes(normalizedSearch),
+      ),
+    );
+  }, [batches, search]);
 
   async function handleSave({ batchData, imageFile }) {
-    setSaving(true)
-    setFormError('')
-    setToast(null)
+    setSaving(true);
+    setFormError("");
+    setToast(null);
     try {
-      const wasEditing = Boolean(editingBatch)
-      const imageUrl = imageFile ? await uploadBatchImage(imageFile) : batchData.imageUrl
-      const payload = imageUrl ? { ...batchData, imageUrl } : batchData
+      const wasEditing = Boolean(editingBatch);
+      const imageUrl = imageFile
+        ? await uploadBatchImage(imageFile)
+        : batchData.imageUrl;
+      const payload = imageUrl ? { ...batchData, imageUrl } : batchData;
       if (editingBatch) {
-        await updateBatch(editingBatch.id, payload)
+        await updateBatch(editingBatch.id, payload);
       } else {
-        await createBatch(payload)
+        await createBatch(payload);
       }
-      setFormOpen(false)
-      setEditingBatch(null)
-      setLoading(true)
-      await fetchData()
+      setFormOpen(false);
+      setEditingBatch(null);
+      setLoading(true);
+      await fetchData();
       setToast({
-        type: 'success',
-        message: wasEditing ? 'Lote actualizado correctamente.' : 'Lote creado correctamente.',
-      })
+        type: "success",
+        message: wasEditing
+          ? "Lote actualizado correctamente."
+          : "Lote creado correctamente.",
+      });
     } catch (error) {
-      console.error('Error al guardar lote:', error)
-      setFormError(error.message)
+      console.error("Error al guardar lote:", error);
+      setFormError(error.message);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
   }
 
   function openCreateForm() {
-    setEditingBatch(null)
-    setFormError('')
-    setFormOpen(true)
+    setEditingBatch(null);
+    setFormError("");
+    setFormOpen(true);
   }
 
   function openEditForm(batch) {
-    setEditingBatch(batch)
-    setFormError('')
-    setFormOpen(true)
+    setEditingBatch(batch);
+    setFormError("");
+    setFormOpen(true);
   }
 
   async function handleDelete() {
-    if (!batchToDelete) return
-    const batch = batchToDelete
-    setDeletingId(batch.id)
-    setDeleteError('')
-    setToast(null)
+    if (!batchToDelete) return;
+    const batch = batchToDelete;
+    setDeletingId(batch.id);
+    setDeleteError("");
+    setToast(null);
     try {
-      await deleteBatch(batch.id)
-      setBatches((current) => current.filter((item) => item.id !== batch.id))
-      setBatchToDelete(null)
-      setToast({ type: 'success', message: `Lote "${batch.code}" eliminado correctamente.` })
+      await deleteBatch(batch.id);
+      setBatches((current) => current.filter((item) => item.id !== batch.id));
+      setBatchToDelete(null);
+      setToast({
+        type: "success",
+        message: `Lote "${batch.code}" eliminado correctamente.`,
+      });
     } catch (error) {
-      console.error('Error al eliminar lote:', error)
-      const message = `No se pudo eliminar el lote "${batch.code}". ${error.message}`
-      setDeleteError(message)
-      setToast({ type: 'warning', message })
+      console.error("Error al eliminar lote:", error);
+      const message = `No se pudo eliminar el lote "${batch.code}". ${error.message}`;
+      setDeleteError(message);
+      setToast({ type: "warning", message });
     } finally {
-      setDeletingId(null)
+      setDeletingId(null);
     }
   }
 
-  const referencesReady = products.length > 0 && providers.length > 0
+  const referencesReady = products.length > 0 && providers.length > 0;
 
   return (
     <>
@@ -166,7 +179,9 @@ function BatchesPage() {
         <div className="panel-heading provider-panel-heading">
           <div>
             <h2>Lotes registrados</h2>
-            <p>{filteredBatches.length} de {batches.length} lotes</p>
+            <p>
+              {filteredBatches.length} de {batches.length} lotes
+            </p>
           </div>
           <button
             className="btn-primary"
@@ -180,13 +195,15 @@ function BatchesPage() {
 
         {loadError ? (
           <div className="feature-load-error" role="alert">
-            <p>No se pudieron cargar lotes, productos o proveedores: {loadError}</p>
+            <p>
+              No se pudieron cargar lotes, productos o proveedores: {loadError}
+            </p>
             <button
               className="btn-secondary"
               onClick={() => {
-                setLoading(true)
-                setLoadError('')
-                fetchData()
+                setLoading(true);
+                setLoadError("");
+                fetchData();
               }}
               type="button"
             >
@@ -194,7 +211,9 @@ function BatchesPage() {
             </button>
           </div>
         ) : loading ? (
-          <p className="feature-loading" role="status">Cargando lotes...</p>
+          <p className="feature-loading" role="status">
+            Cargando lotes...
+          </p>
         ) : products.length === 0 ? (
           <EmptyState
             title="Primero registra un producto"
@@ -218,8 +237,8 @@ function BatchesPage() {
               items={filteredBatches}
               onViewDetails={setViewingBatch}
               onDelete={(batch) => {
-                setBatchToDelete(batch)
-                setDeleteError('')
+                setBatchToDelete(batch);
+                setDeleteError("");
               }}
               onEdit={openEditForm}
             />
@@ -231,11 +250,11 @@ function BatchesPage() {
         <BatchForm
           error={formError}
           initialValues={editingBatch}
-          key={editingBatch?.id ?? 'new-batch'}
+          key={editingBatch?.id ?? "new-batch"}
           onCancel={() => {
-            setFormOpen(false)
-            setEditingBatch(null)
-            setFormError('')
+            setFormOpen(false);
+            setEditingBatch(null);
+            setFormError("");
           }}
           onSubmit={handleSave}
           products={products}
@@ -258,8 +277,8 @@ function BatchesPage() {
           error={deleteError}
           onCancel={() => {
             if (deletingId === null) {
-              setBatchToDelete(null)
-              setDeleteError('')
+              setBatchToDelete(null);
+              setDeleteError("");
             }
           }}
           onConfirm={handleDelete}
@@ -268,13 +287,13 @@ function BatchesPage() {
 
       <Toast
         duration={4500}
-        key={toast?.message ?? 'empty-batch-toast'}
+        key={toast?.message ?? "empty-batch-toast"}
         message={toast?.message}
         onClose={dismissToast}
-        type={toast?.type ?? 'success'}
+        type={toast?.type ?? "success"}
       />
     </>
-  )
+  );
 }
 
-export default BatchesPage
+export default BatchesPage;

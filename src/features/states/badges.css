@@ -1,0 +1,11 @@
+.order-state-badge {
+  display: inline-flex;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 5px 8px;
+  border-radius: 20px;
+  color: #315677;
+  background: #e9f2fb;
+  font-size: 10px;
+  text-overflow: ellipsis;
+}

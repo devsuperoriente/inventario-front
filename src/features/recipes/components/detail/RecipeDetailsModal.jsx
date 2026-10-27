@@ -1,123 +1,137 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import EmptyState from '../../../../components/feedback/EmptyState.jsx'
-import Modal from '../../../../components/ui/Modal.jsx'
-import RecipeDetailForm from './RecipeDetailForm.jsx'
-import RecipeDetailTable from './RecipeDetailTable.jsx'
+import { useCallback, useEffect, useMemo, useState } from "react";
+import EmptyState from "../../../../components/feedback/EmptyState.jsx";
+import Modal from "../../../../components/ui/Modal.jsx";
+import RecipeDetailForm from "./RecipeDetailForm.jsx";
+import RecipeDetailTable from "./RecipeDetailTable.jsx";
 import {
   createRecipeDetail,
   deleteRecipeDetail,
   getRecipeDetails,
   updateRecipeDetail,
-} from '../../services/recipeDetailsApi.js'
+} from "../../services/recipeDetailsApi.js";
 
 function getRecipeId(detail) {
-  return detail.recipeId ?? detail.recipe?.id
+  return detail.recipeId ?? detail.recipe?.id;
 }
 
-function RecipeDetailsModal({ recipe, products, startWithAddForm = false, onClose, onNotify }) {
-  const [details, setDetails] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [loadError, setLoadError] = useState('')
-  const [formOpen, setFormOpen] = useState(startWithAddForm)
-  const [editingDetail, setEditingDetail] = useState(null)
-  const [formError, setFormError] = useState('')
-  const [saving, setSaving] = useState(false)
-  const [detailToDelete, setDetailToDelete] = useState(null)
-  const [deleteError, setDeleteError] = useState('')
-  const [deletingId, setDeletingId] = useState(null)
+function RecipeDetailsModal({
+  recipe,
+  products,
+  startWithAddForm = false,
+  onClose,
+  onNotify,
+}) {
+  const [details, setDetails] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [formOpen, setFormOpen] = useState(startWithAddForm);
+  const [editingDetail, setEditingDetail] = useState(null);
+  const [formError, setFormError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [detailToDelete, setDetailToDelete] = useState(null);
+  const [deleteError, setDeleteError] = useState("");
+  const [deletingId, setDeletingId] = useState(null);
 
   const productsById = useMemo(
     () => new Map(products.map((product) => [String(product.id), product])),
     [products],
-  )
+  );
 
   const fetchDetails = useCallback(
-    () => getRecipeDetails().then((allDetails) => allDetails.filter(
-      (detail) => String(getRecipeId(detail)) === String(recipe.id),
-    )),
+    () =>
+      getRecipeDetails().then((allDetails) =>
+        allDetails.filter(
+          (detail) => String(getRecipeId(detail)) === String(recipe.id),
+        ),
+      ),
     [recipe.id],
-  )
+  );
 
   useEffect(() => {
-    let isCurrent = true
+    let isCurrent = true;
     fetchDetails()
       .then((recipeDetails) => {
-        if (isCurrent) setDetails(recipeDetails)
+        if (isCurrent) setDetails(recipeDetails);
       })
       .catch((error) => {
-        console.error('Error al cargar ingredientes de la receta:', error)
-        if (isCurrent) setLoadError(error.message)
+        console.error("Error al cargar ingredientes de la receta:", error);
+        if (isCurrent) setLoadError(error.message);
       })
       .finally(() => {
-        if (isCurrent) setLoading(false)
-      })
+        if (isCurrent) setLoading(false);
+      });
     return () => {
-      isCurrent = false
-    }
-  }, [fetchDetails])
+      isCurrent = false;
+    };
+  }, [fetchDetails]);
 
   async function refreshDetails() {
     try {
-      setDetails(await fetchDetails())
-      setLoadError('')
+      setDetails(await fetchDetails());
+      setLoadError("");
     } catch (error) {
-      console.error('Error al actualizar ingredientes de la receta:', error)
-      setLoadError(error.message)
+      console.error("Error al actualizar ingredientes de la receta:", error);
+      setLoadError(error.message);
     }
   }
 
   async function handleSaveDetail(formData) {
-    setSaving(true)
-    setFormError('')
+    setSaving(true);
+    setFormError("");
     try {
-      const payload = { ...formData, recipeId: recipe.id }
-      const wasEditing = Boolean(editingDetail)
+      const payload = { ...formData, recipeId: recipe.id };
+      const wasEditing = Boolean(editingDetail);
       if (editingDetail) {
-        await updateRecipeDetail(editingDetail.id, payload)
+        await updateRecipeDetail(editingDetail.id, payload);
       } else {
-        await createRecipeDetail(payload)
+        await createRecipeDetail(payload);
       }
 
-      setEditingDetail(null)
-      setFormOpen(false)
-      await refreshDetails()
+      setEditingDetail(null);
+      setFormOpen(false);
+      await refreshDetails();
       onNotify({
-        type: 'success',
-        message: wasEditing ? 'Ingrediente actualizado.' : 'Producto agregado a la receta.',
-      })
+        type: "success",
+        message: wasEditing
+          ? "Ingrediente actualizado."
+          : "Producto agregado a la receta.",
+      });
     } catch (error) {
-      console.error('Error al guardar ingrediente de receta:', error)
-      setFormError(error.message)
+      console.error("Error al guardar ingrediente de receta:", error);
+      setFormError(error.message);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
   }
 
   async function handleDeleteDetail() {
-    if (!detailToDelete) return
-    const detail = detailToDelete
-    setDeletingId(detail.id)
-    setDeleteError('')
+    if (!detailToDelete) return;
+    const detail = detailToDelete;
+    setDeletingId(detail.id);
+    setDeleteError("");
     try {
-      await deleteRecipeDetail(detail.id)
-      setDetails((current) => current.filter((item) => item.id !== detail.id))
-      setDetailToDelete(null)
-      onNotify({ type: 'success', message: 'Producto eliminado de la receta.' })
+      await deleteRecipeDetail(detail.id);
+      setDetails((current) => current.filter((item) => item.id !== detail.id));
+      setDetailToDelete(null);
+      onNotify({
+        type: "success",
+        message: "Producto eliminado de la receta.",
+      });
     } catch (error) {
-      console.error('Error al eliminar ingrediente de receta:', error)
-      setDeleteError(error.message)
+      console.error("Error al eliminar ingrediente de receta:", error);
+      setDeleteError(error.message);
     } finally {
-      setDeletingId(null)
+      setDeletingId(null);
     }
   }
 
   function resetDetailForm() {
-    setFormOpen(false)
-    setEditingDetail(null)
-    setFormError('')
+    setFormOpen(false);
+    setEditingDetail(null);
+    setFormError("");
   }
 
-  const description = `Ingredientes y cantidades de ${recipe.name}, versión ${recipe.version}.`
+  const description = `Ingredientes y cantidades de ${recipe.name}, versión ${recipe.version}.`;
 
   return (
     <Modal
@@ -131,7 +145,9 @@ function RecipeDetailsModal({ recipe, products, startWithAddForm = false, onClos
         {formOpen ? (
           <>
             <h3 className="order-details-form-title">
-              {editingDetail ? 'Modificar ingrediente' : 'Agregar producto a la receta'}
+              {editingDetail
+                ? "Modificar ingrediente"
+                : "Agregar producto a la receta"}
             </h3>
             <RecipeDetailForm
               error={formError}
@@ -146,14 +162,18 @@ function RecipeDetailsModal({ recipe, products, startWithAddForm = false, onClos
         ) : detailToDelete ? (
           <div className="delete-provider-content">
             <p>¿Quitar este producto de la receta?</p>
-            {deleteError && <p className="form-error" role="alert">{deleteError}</p>}
+            {deleteError && (
+              <p className="form-error" role="alert">
+                {deleteError}
+              </p>
+            )}
             <div className="entity-form-actions">
               <button
                 className="btn-secondary"
                 disabled={deletingId !== null}
                 onClick={() => {
-                  setDetailToDelete(null)
-                  setDeleteError('')
+                  setDetailToDelete(null);
+                  setDeleteError("");
                 }}
                 type="button"
               >
@@ -165,20 +185,23 @@ function RecipeDetailsModal({ recipe, products, startWithAddForm = false, onClos
                 onClick={handleDeleteDetail}
                 type="button"
               >
-                {deletingId !== null ? 'Eliminando...' : 'Quitar producto'}
+                {deletingId !== null ? "Eliminando..." : "Quitar producto"}
               </button>
             </div>
           </div>
         ) : (
           <>
             <div className="order-details-toolbar">
-              <p>{details.length} producto{details.length === 1 ? '' : 's'} en la receta</p>
+              <p>
+                {details.length} producto{details.length === 1 ? "" : "s"} en la
+                receta
+              </p>
               <button
                 className="btn-primary"
                 disabled={loading || products.length === 0}
                 onClick={() => {
-                  resetDetailForm()
-                  setFormOpen(true)
+                  resetDetailForm();
+                  setFormOpen(true);
                 }}
                 type="button"
               >
@@ -191,9 +214,9 @@ function RecipeDetailsModal({ recipe, products, startWithAddForm = false, onClos
                 <button
                   className="btn-secondary"
                   onClick={() => {
-                    setLoading(true)
-                    setLoadError('')
-                    refreshDetails().finally(() => setLoading(false))
+                    setLoading(true);
+                    setLoadError("");
+                    refreshDetails().finally(() => setLoading(false));
                   }}
                   type="button"
                 >
@@ -201,7 +224,9 @@ function RecipeDetailsModal({ recipe, products, startWithAddForm = false, onClos
                 </button>
               </div>
             ) : loading ? (
-              <p className="feature-loading" role="status">Cargando ingredientes...</p>
+              <p className="feature-loading" role="status">
+                Cargando ingredientes...
+              </p>
             ) : products.length === 0 ? (
               <EmptyState
                 title="No hay productos disponibles"
@@ -212,13 +237,13 @@ function RecipeDetailsModal({ recipe, products, startWithAddForm = false, onClos
                 deletingId={deletingId}
                 items={details}
                 onDelete={(detail) => {
-                  setDetailToDelete(detail)
-                  setDeleteError('')
+                  setDetailToDelete(detail);
+                  setDeleteError("");
                 }}
                 onEdit={(detail) => {
-                  setEditingDetail(detail)
-                  setFormError('')
-                  setFormOpen(true)
+                  setEditingDetail(detail);
+                  setFormError("");
+                  setFormOpen(true);
                 }}
                 productsById={productsById}
               />
@@ -227,7 +252,7 @@ function RecipeDetailsModal({ recipe, products, startWithAddForm = false, onClos
         )}
       </div>
     </Modal>
-  )
+  );
 }
 
-export default RecipeDetailsModal
+export default RecipeDetailsModal;

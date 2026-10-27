@@ -1,4 +1,4 @@
-import EmptyState from '../../../components/feedback/EmptyState.jsx'
+import EmptyState from "../../../components/feedback/EmptyState.jsx";
 
 function ProviderTable({ items, onEdit, onDelete, deletingId }) {
   if (items.length === 0) {
@@ -7,7 +7,7 @@ function ProviderTable({ items, onEdit, onDelete, deletingId }) {
         title="No se encontraron proveedores"
         description="Prueba con otro nombre, NIT, correo o telefono."
       />
-    )
+    );
   }
 
   return (
@@ -17,12 +17,24 @@ function ProviderTable({ items, onEdit, onDelete, deletingId }) {
         <thead>
           <tr>
             <th scope="col">Nombre</th>
-            <th className="provider-column-nit" scope="col">NIT</th>
-            <th className="provider-column-address" scope="col">Dirección</th>
-            <th className="provider-column-phone" scope="col">Teléfono</th>
-            <th className="provider-column-email" scope="col">Correo</th>
-            <th className="provider-column-website" scope="col">Web</th>
-            <th className="provider-column-actions" scope="col">Acciones</th>
+            <th className="provider-column-nit" scope="col">
+              NIT
+            </th>
+            <th className="provider-column-address" scope="col">
+              Dirección
+            </th>
+            <th className="provider-column-phone" scope="col">
+              Teléfono
+            </th>
+            <th className="provider-column-email" scope="col">
+              Correo
+            </th>
+            <th className="provider-column-website" scope="col">
+              Web
+            </th>
+            <th className="provider-column-actions" scope="col">
+              Acciones
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -31,11 +43,11 @@ function ProviderTable({ items, onEdit, onDelete, deletingId }) {
               <td>
                 <strong>{item.name}</strong>
               </td>
-              <td className="provider-column-nit">{item.nit || '—'}</td>
-              <td className="provider-column-address">{item.address || '—'}</td>
-              <td className="provider-column-phone">{item.phone || '—'}</td>
-              <td className="provider-column-email">{item.email || '—'}</td>
-              <td className="provider-column-website">{item.website || '—'}</td>
+              <td className="provider-column-nit">{item.nit || "—"}</td>
+              <td className="provider-column-address">{item.address || "—"}</td>
+              <td className="provider-column-phone">{item.phone || "—"}</td>
+              <td className="provider-column-email">{item.email || "—"}</td>
+              <td className="provider-column-website">{item.website || "—"}</td>
               <td className="provider-actions-cell provider-column-actions">
                 <div className="table-actions">
                   <button
@@ -51,18 +63,22 @@ function ProviderTable({ items, onEdit, onDelete, deletingId }) {
                     <span className="action-label">Modificar</span>
                   </button>
                   <button
-                    aria-label={`${deletingId === item.id ? 'Eliminando' : 'Eliminar'} proveedor ${item.name}`}
+                    aria-label={`${deletingId === item.id ? "Eliminando" : "Eliminar"} proveedor ${item.name}`}
                     className="table-action danger"
                     disabled={deletingId === item.id}
                     onClick={() => onDelete(item)}
-                    title={deletingId === item.id ? 'Eliminando proveedor' : 'Eliminar proveedor'}
+                    title={
+                      deletingId === item.id
+                        ? "Eliminando proveedor"
+                        : "Eliminar proveedor"
+                    }
                     type="button"
                   >
                     <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
                       <path d="M3.5 5.5h13M8 5.5V3.8h4v1.7m-6.5 0 .7 10.7h7.6l.7-10.7M8.2 8.5v5m3.6-5v5" />
                     </svg>
                     <span className="action-label">
-                      {deletingId === item.id ? 'Eliminando...' : 'Eliminar'}
+                      {deletingId === item.id ? "Eliminando..." : "Eliminar"}
                     </span>
                   </button>
                 </div>
@@ -72,7 +88,7 @@ function ProviderTable({ items, onEdit, onDelete, deletingId }) {
         </tbody>
       </table>
     </div>
-  )
+  );
 }
 
-export default ProviderTable
+export default ProviderTable;

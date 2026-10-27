@@ -1,0 +1,21 @@
+.category-table {
+  table-layout: fixed;
+}
+
+.category-table th:first-child,
+.category-table td:first-child {
+  width: 30%;
+}
+
+.category-table .category-description {
+  width: 50%;
+}
+
+.category-table .category-actions {
+  width: 20%;
+  text-align: right;
+}
+
+.category-actions .table-actions {
+  justify-content: flex-end;
+}

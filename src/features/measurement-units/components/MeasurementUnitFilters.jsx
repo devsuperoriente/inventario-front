@@ -12,7 +12,7 @@ function MeasurementUnitFilters({ search, onSearchChange }) {
         />
       </label>
     </div>
-  )
+  );
 }
 
-export default MeasurementUnitFilters
+export default MeasurementUnitFilters;

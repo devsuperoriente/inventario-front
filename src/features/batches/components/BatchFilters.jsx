@@ -12,7 +12,7 @@ function BatchFilters({ search, onSearchChange }) {
         />
       </label>
     </div>
-  )
+  );
 }
 
-export default BatchFilters
+export default BatchFilters;

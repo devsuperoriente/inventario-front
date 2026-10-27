@@ -1,4 +1,11 @@
-function ProductionOrdersFilters({ date, onDateChange, onSubmit, loading, disabled, error }) {
+function ProductionOrdersFilters({
+  date,
+  onDateChange,
+  onSubmit,
+  loading,
+  disabled,
+  error,
+}) {
   return (
     <section className="panel provider-panel production-orders-panel">
       <form className="entity-form" onSubmit={onSubmit}>
@@ -15,14 +22,22 @@ function ProductionOrdersFilters({ date, onDateChange, onSubmit, loading, disabl
           </label>
         </div>
         <div className="entity-form-actions">
-          <button className="btn-primary" disabled={loading || disabled} type="submit">
-            {loading ? 'Consultando...' : 'Consolidar pedidos'}
+          <button
+            className="btn-primary"
+            disabled={loading || disabled}
+            type="submit"
+          >
+            {loading ? "Consultando..." : "Consolidar pedidos"}
           </button>
         </div>
       </form>
-      {error && <p className="form-error" role="alert">{error}</p>}
+      {error && (
+        <p className="form-error" role="alert">
+          {error}
+        </p>
+      )}
     </section>
-  )
+  );
 }
 
-export default ProductionOrdersFilters
+export default ProductionOrdersFilters;

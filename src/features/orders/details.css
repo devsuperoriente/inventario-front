@@ -1,0 +1,91 @@
+.orders-table th:first-child,
+.orders-table td:first-child {
+  width: 25%;
+}
+
+.orders-table .order-column-client {
+  width: 30%;
+}
+
+.orders-table .order-column-date {
+  width: 20%;
+}
+
+.orders-table .order-column-actions {
+  width: 25%;
+  text-align: right;
+}
+
+.order-supervisor-note {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.order-supervisor-note strong {
+  color: #29362d;
+}
+
+.order-column-actions .table-actions {
+  justify-content: flex-end;
+}
+
+.order-details-modal {
+  width: min(100%, 900px);
+}
+
+.order-details-content {
+  padding: 0 20px 20px;
+}
+
+.order-details-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 0;
+}
+
+.order-details-toolbar p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.order-details-form-title {
+  margin: 18px 24px 0;
+  color: #29362d;
+  font-size: 15px;
+}
+
+.order-detail-form {
+  padding-top: 16px;
+}
+
+.order-detail-delete-confirmation {
+  padding: 22px 4px 4px;
+}
+
+.order-detail-delete-confirmation > p:first-child {
+  margin: 0;
+  color: #536057;
+  font-size: 13px;
+}
+
+.order-detail-table .order-detail-column-actions {
+  text-align: right;
+}
+
+.order-detail-column-actions .table-actions {
+  justify-content: flex-end;
+}
+
+@media (max-width: 520px) {
+  .orders-table .order-column-date {
+    display: none;
+  }
+
+  .orders-table .order-column-client {
+    width: 30%;
+  }
+}

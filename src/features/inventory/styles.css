@@ -1,0 +1,242 @@
+.inventory-filters {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px;
+}
+
+.inventory-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0 0 18px;
+}
+
+.inventory-summary-card {
+  display: grid;
+  gap: 8px;
+  padding: 16px 18px;
+  border: 1px solid #e5ebe6;
+  border-radius: 11px;
+  background: #fff;
+}
+
+.inventory-summary-card span {
+  color: #77847a;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.inventory-summary-card strong {
+  color: #29362d;
+  font-size: 24px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.inventory-section-tabs {
+  display: flex;
+  width: fit-content;
+  max-width: 100%;
+  gap: 4px;
+  margin: 0 0 16px;
+  padding: 4px;
+  border: 1px solid #e5ebe6;
+  border-radius: 10px;
+  background: #f3f6f3;
+}
+
+.inventory-section-tab {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 7px;
+  color: #647168;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.inventory-section-tab.is-active {
+  color: #2c5838;
+  background: #fff;
+  box-shadow: 0 1px 4px rgb(32 56 39 / 12%);
+}
+
+.inventory-section-tab:focus-visible {
+  outline: 2px solid #548961;
+  outline-offset: 2px;
+}
+
+.inventory-section-tab-count {
+  display: inline-flex;
+  min-width: 21px;
+  height: 21px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  border-radius: 20px;
+  color: #56715d;
+  background: #eaf1eb;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.inventory-section-tab.is-active .inventory-section-tab-count {
+  color: #fff;
+  background: #548961;
+}
+
+.inventory-ledger-heading .btn-secondary {
+  min-height: 38px;
+}
+
+.inventory-ledger-filters {
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.inventory-ledger-filters .filter-field input {
+  height: 100%;
+  border: 0;
+  outline: 0;
+  color: #344139;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+}
+
+.inventory-ledger-table {
+  table-layout: auto;
+}
+
+.inventory-ledger-table td {
+  overflow-wrap: anywhere;
+}
+
+.inventory-ledger-table td strong {
+  display: block;
+}
+
+.inventory-ledger-table .table-subtext {
+  white-space: normal;
+}
+
+.inventory-product-details-button {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid #dfe6e0;
+  border-radius: 7px;
+  color: #356c48;
+  background: #fff;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.inventory-product-details-button:hover {
+  background: #eff6ef;
+}
+
+.inventory-product-details-button:focus-visible {
+  outline: 2px solid #548961;
+  outline-offset: 2px;
+}
+
+.inventory-product-details-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.inventory-product-stock-modal {
+  width: min(100%, 760px);
+}
+
+.inventory-product-stock-content {
+  display: grid;
+  gap: 16px;
+  padding: 18px 24px 24px;
+}
+
+.inventory-product-stock-total {
+  display: grid;
+  gap: 5px;
+  padding: 15px 16px;
+  border: 1px solid #e5ebe6;
+  border-radius: 10px;
+  background: #f7faf7;
+}
+
+.inventory-product-stock-total span {
+  color: #77847a;
+  font-size: 11px;
+}
+
+.inventory-product-stock-total strong {
+  color: #29362d;
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}
+
+.inventory-product-batch-list {
+  display: grid;
+  gap: 10px;
+}
+
+.inventory-product-batch-card {
+  padding: 14px 16px;
+  border: 1px solid #e8eee9;
+  border-radius: 10px;
+}
+
+.inventory-product-batch-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 12px;
+  margin-bottom: 12px;
+}
+
+.inventory-product-batch-heading span {
+  color: #77847a;
+  font-size: 12px;
+}
+
+.inventory-product-batch-card dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.inventory-product-batch-card dl div {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.inventory-product-batch-card dt {
+  color: #87938a;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.inventory-product-batch-card dd {
+  margin: 0;
+  color: #344139;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.inventory-product-stock-empty {
+  margin: 0;
+  color: #77847a;
+  font-size: 13px;
+}

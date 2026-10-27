@@ -1,31 +1,31 @@
-import { apiRequest } from '../../../services/apiClient.js'
+import { apiRequest } from "../../../services/apiClient.js";
 
-const endpoint = '/productos'
+const endpoint = "/productos";
 
 export function getProducts() {
-  return apiRequest(endpoint)
+  return apiRequest(endpoint);
 }
 
 export function getProductByName(name) {
-  return apiRequest(`${endpoint}/search/${encodeURIComponent(name)}`)
+  return apiRequest(`${endpoint}/search/${encodeURIComponent(name)}`);
 }
 
 export function createProduct(productData) {
   return apiRequest(endpoint, {
-    method: 'POST',
+    method: "POST",
     body: JSON.stringify(productData),
-  })
+  });
 }
 
 export function updateProduct(id, productData) {
   return apiRequest(`${endpoint}/${encodeURIComponent(id)}`, {
-    method: 'PUT',
+    method: "PUT",
     body: JSON.stringify(productData),
-  })
+  });
 }
 
 export function deleteProduct(id) {
   return apiRequest(`${endpoint}/${encodeURIComponent(id)}`, {
-    method: 'DELETE',
-  })
+    method: "DELETE",
+  });
 }

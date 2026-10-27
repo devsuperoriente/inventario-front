@@ -12,7 +12,7 @@ function ProviderFilters({ search, onSearchChange }) {
         />
       </label>
     </div>
-  )
+  );
 }
 
-export default ProviderFilters
+export default ProviderFilters;

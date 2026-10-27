@@ -2,7 +2,9 @@ function CategoryFilters({ search, onSearchChange }) {
   return (
     <div className="inventory-filters">
       <label className="search-field">
-        <span className="sr-only">Buscar categoria por nombre o descripcion</span>
+        <span className="sr-only">
+          Buscar categoria por nombre o descripcion
+        </span>
         <span aria-hidden="true">Buscar</span>
         <input
           type="search"
@@ -12,7 +14,7 @@ function CategoryFilters({ search, onSearchChange }) {
         />
       </label>
     </div>
-  )
+  );
 }
 
-export default CategoryFilters
+export default CategoryFilters;

@@ -1,4 +1,4 @@
-import Modal from '../../../components/ui/Modal.jsx'
+import Modal from "../../../components/ui/Modal.jsx";
 
 function DeleteClientModal({ client, deleting, error, onConfirm, onCancel }) {
   return (
@@ -9,19 +9,35 @@ function DeleteClientModal({ client, deleting, error, onConfirm, onCancel }) {
       title="Eliminar cliente"
     >
       <div className="delete-provider-content">
-        <p>¿Seguro que deseas eliminar a <strong>{client.name}</strong>?</p>
-        {error && <p className="form-error" role="alert">{error}</p>}
+        <p>
+          ¿Seguro que deseas eliminar a <strong>{client.name}</strong>?
+        </p>
+        {error && (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        )}
         <div className="entity-form-actions">
-          <button className="btn-secondary" disabled={deleting} onClick={onCancel} type="button">
+          <button
+            className="btn-secondary"
+            disabled={deleting}
+            onClick={onCancel}
+            type="button"
+          >
             Cancelar
           </button>
-          <button className="btn-danger" disabled={deleting} onClick={onConfirm} type="button">
-            {deleting ? 'Eliminando...' : 'Eliminar cliente'}
+          <button
+            className="btn-danger"
+            disabled={deleting}
+            onClick={onConfirm}
+            type="button"
+          >
+            {deleting ? "Eliminando..." : "Eliminar cliente"}
           </button>
         </div>
       </div>
     </Modal>
-  )
+  );
 }
 
-export default DeleteClientModal
+export default DeleteClientModal;

@@ -1,0 +1,49 @@
+.provider-table th:last-child,
+.provider-table td:last-child {
+  text-align: right;
+}
+
+.provider-table {
+  table-layout: fixed;
+}
+
+.client-table {
+  table-layout: fixed;
+}
+
+.provider-table th,
+.provider-table td,
+.client-table th,
+.client-table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.provider-table th:first-child,
+.provider-table td:first-child {
+  width: 19%;
+}
+
+.provider-table .provider-column-nit {
+  width: 12%;
+}
+
+.provider-table .provider-column-address {
+  width: 17%;
+}
+
+.provider-table .provider-column-phone {
+  width: 12%;
+}
+
+.provider-table .provider-column-email {
+  width: 17%;
+}
+
+.provider-table .provider-column-website {
+  width: 12%;
+}
+
+.provider-table .provider-column-actions {
+  width: 20%;
+}

@@ -1,157 +1,175 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import EmptyState from '../../../components/feedback/EmptyState.jsx'
-import Toast from '../../../components/feedback/Toast.jsx'
-import PageHeading from '../../../components/ui/PageHeading.jsx'
-import { getProducts } from '../../products/services/productsApi.js'
-import DeleteRecipeModal from '../components/DeleteRecipeModal.jsx'
-import RecipeDetailsModal from '../components/detail/RecipeDetailsModal.jsx'
-import RecipeForm from '../components/RecipeForm.jsx'
-import RecipeTable from '../components/RecipeTable.jsx'
+import { useCallback, useEffect, useMemo, useState } from "react";
+import EmptyState from "../../../components/feedback/EmptyState.jsx";
+import Toast from "../../../components/feedback/Toast.jsx";
+import PageHeading from "../../../components/ui/PageHeading.jsx";
+import { getProducts } from "../../products/services/productsApi.js";
+import DeleteRecipeModal from "../components/DeleteRecipeModal.jsx";
+import RecipeDetailsModal from "../components/detail/RecipeDetailsModal.jsx";
+import RecipeForm from "../components/RecipeForm.jsx";
+import RecipeTable from "../components/RecipeTable.jsx";
 import {
   createRecipe,
   deleteRecipe,
   getRecipes,
   updateRecipe,
-} from '../services/recipesApi.js'
+} from "../services/recipesApi.js";
 
 function RecipesPage() {
-  const [recipes, setRecipes] = useState([])
-  const [products, setProducts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [loadError, setLoadError] = useState('')
-  const [search, setSearch] = useState('')
-  const [formOpen, setFormOpen] = useState(false)
-  const [editingRecipe, setEditingRecipe] = useState(null)
-  const [formError, setFormError] = useState('')
-  const [saving, setSaving] = useState(false)
-  const [recipeToDelete, setRecipeToDelete] = useState(null)
-  const [deleteError, setDeleteError] = useState('')
-  const [deletingId, setDeletingId] = useState(null)
-  const [selectedRecipe, setSelectedRecipe] = useState(null)
-  const [startWithAddForm, setStartWithAddForm] = useState(false)
-  const [toast, setToast] = useState(null)
+  const [recipes, setRecipes] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [search, setSearch] = useState("");
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingRecipe, setEditingRecipe] = useState(null);
+  const [formError, setFormError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [recipeToDelete, setRecipeToDelete] = useState(null);
+  const [deleteError, setDeleteError] = useState("");
+  const [deletingId, setDeletingId] = useState(null);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [startWithAddForm, setStartWithAddForm] = useState(false);
+  const [toast, setToast] = useState(null);
 
-  const dismissToast = useCallback(() => setToast(null), [])
+  const dismissToast = useCallback(() => setToast(null), []);
 
   const fetchData = useCallback(async () => {
     try {
-      const [recipeData, productData] = await Promise.all([getRecipes(), getProducts()])
-      setRecipes(recipeData)
-      setProducts(productData)
-      setLoadError('')
-      return recipeData
+      const [recipeData, productData] = await Promise.all([
+        getRecipes(),
+        getProducts(),
+      ]);
+      setRecipes(recipeData);
+      setProducts(productData);
+      setLoadError("");
+      return recipeData;
     } catch (error) {
-      console.error('Error al cargar recetas y productos:', error)
-      setLoadError(error.message)
-      return null
+      console.error("Error al cargar recetas y productos:", error);
+      setLoadError(error.message);
+      return null;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    let isCurrent = true
+    let isCurrent = true;
     Promise.all([getRecipes(), getProducts()])
       .then(([recipeData, productData]) => {
-        if (!isCurrent) return
-        setRecipes(recipeData)
-        setProducts(productData)
+        if (!isCurrent) return;
+        setRecipes(recipeData);
+        setProducts(productData);
       })
       .catch((error) => {
-        console.error('Error al cargar recetas y productos:', error)
-        if (isCurrent) setLoadError(error.message)
+        console.error("Error al cargar recetas y productos:", error);
+        if (isCurrent) setLoadError(error.message);
       })
       .finally(() => {
-        if (isCurrent) setLoading(false)
-      })
+        if (isCurrent) setLoading(false);
+      });
     return () => {
-      isCurrent = false
-    }
-  }, [])
+      isCurrent = false;
+    };
+  }, []);
 
   const filteredRecipes = useMemo(() => {
-    const query = search.trim().toLocaleLowerCase()
-    return recipes.filter((recipe) => [
-      recipe.name,
-      recipe.description,
-      recipe.version,
-      recipe.product?.name,
-      recipe.baseYield,
-    ].some((value) => String(value ?? '').toLocaleLowerCase().includes(query)))
-  }, [recipes, search])
+    const query = search.trim().toLocaleLowerCase();
+    return recipes.filter((recipe) =>
+      [
+        recipe.name,
+        recipe.description,
+        recipe.version,
+        recipe.product?.name,
+        recipe.baseYield,
+      ].some((value) =>
+        String(value ?? "")
+          .toLocaleLowerCase()
+          .includes(query),
+      ),
+    );
+  }, [recipes, search]);
 
   async function handleSaveRecipe(formData) {
-    setSaving(true)
-    setFormError('')
-    setToast(null)
+    setSaving(true);
+    setFormError("");
+    setToast(null);
     try {
-      const wasEditing = Boolean(editingRecipe)
-      const existingIds = new Set(recipes.map((recipe) => String(recipe.id)))
+      const wasEditing = Boolean(editingRecipe);
+      const existingIds = new Set(recipes.map((recipe) => String(recipe.id)));
       const savedRecipe = editingRecipe
         ? await updateRecipe(editingRecipe.id, formData)
-        : await createRecipe(formData)
+        : await createRecipe(formData);
 
-      setFormOpen(false)
-      setEditingRecipe(null)
-      setLoading(true)
-      const refreshedRecipes = await fetchData()
+      setFormOpen(false);
+      setEditingRecipe(null);
+      setLoading(true);
+      const refreshedRecipes = await fetchData();
 
       if (wasEditing) {
-        setToast({ type: 'success', message: 'Receta actualizada correctamente.' })
-        return
+        setToast({
+          type: "success",
+          message: "Receta actualizada correctamente.",
+        });
+        return;
       }
 
       const createdRecipe = savedRecipe?.id
         ? savedRecipe
-        : refreshedRecipes?.find((recipe) => (
-          !existingIds.has(String(recipe.id))
-          && recipe.name === formData.name
-          && recipe.version === formData.version
-          && recipe.baseYield === formData.baseYield
-
-        ))
+        : refreshedRecipes?.find(
+            (recipe) =>
+              !existingIds.has(String(recipe.id)) &&
+              recipe.name === formData.name &&
+              recipe.version === formData.version &&
+              recipe.baseYield === formData.baseYield,
+          );
 
       if (createdRecipe?.id) {
-        setStartWithAddForm(true)
-        setSelectedRecipe(createdRecipe)
+        setStartWithAddForm(true);
+        setSelectedRecipe(createdRecipe);
         setToast({
-          type: 'success',
-          message: 'Receta creada. Agrega ahora sus productos e ingredientes.',
-        })
+          type: "success",
+          message: "Receta creada. Agrega ahora sus productos e ingredientes.",
+        });
       } else {
         setToast({
-          type: 'warning',
-          message: 'Receta creada, pero no se pudo abrir su detalle automáticamente.',
-        })
+          type: "warning",
+          message:
+            "Receta creada, pero no se pudo abrir su detalle automáticamente.",
+        });
       }
     } catch (error) {
-      console.error('Error al guardar receta:', error)
-      setFormError(error.message)
+      console.error("Error al guardar receta:", error);
+      setFormError(error.message);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
   }
 
   async function handleDeleteRecipe() {
-    if (!recipeToDelete) return
-    setDeletingId(recipeToDelete.id)
-    setDeleteError('')
+    if (!recipeToDelete) return;
+    setDeletingId(recipeToDelete.id);
+    setDeleteError("");
     try {
-      await deleteRecipe(recipeToDelete.id)
-      setRecipes((current) => current.filter((recipe) => recipe.id !== recipeToDelete.id))
-      setRecipeToDelete(null)
-      setToast({ type: 'success', message: `Receta "${recipeToDelete.name}" eliminada.` })
+      await deleteRecipe(recipeToDelete.id);
+      setRecipes((current) =>
+        current.filter((recipe) => recipe.id !== recipeToDelete.id),
+      );
+      setRecipeToDelete(null);
+      setToast({
+        type: "success",
+        message: `Receta "${recipeToDelete.name}" eliminada.`,
+      });
     } catch (error) {
-      console.error('Error al eliminar receta:', error)
-      setDeleteError(`No se pudo eliminar la receta. ${error.message}`)
+      console.error("Error al eliminar receta:", error);
+      setDeleteError(`No se pudo eliminar la receta. ${error.message}`);
     } finally {
-      setDeletingId(null)
+      setDeletingId(null);
     }
   }
 
   function closeDetails() {
-    setSelectedRecipe(null)
-    setStartWithAddForm(false)
+    setSelectedRecipe(null);
+    setStartWithAddForm(false);
   }
 
   return (
@@ -167,14 +185,16 @@ function RecipesPage() {
         <div className="panel-heading provider-panel-heading">
           <div>
             <h2>Recetas registradas</h2>
-            <p>{filteredRecipes.length} de {recipes.length} recetas</p>
+            <p>
+              {filteredRecipes.length} de {recipes.length} recetas
+            </p>
           </div>
           <button
             className="btn-primary"
             onClick={() => {
-              setEditingRecipe(null)
-              setFormError('')
-              setFormOpen(true)
+              setEditingRecipe(null);
+              setFormError("");
+              setFormOpen(true);
             }}
             type="button"
           >
@@ -188,9 +208,9 @@ function RecipesPage() {
             <button
               className="btn-secondary"
               onClick={() => {
-                setLoading(true)
-                setLoadError('')
-                fetchData()
+                setLoading(true);
+                setLoadError("");
+                fetchData();
               }}
               type="button"
             >
@@ -198,7 +218,9 @@ function RecipesPage() {
             </button>
           </div>
         ) : loading ? (
-          <p className="feature-loading" role="status">Cargando recetas...</p>
+          <p className="feature-loading" role="status">
+            Cargando recetas...
+          </p>
         ) : recipes.length === 0 ? (
           <EmptyState
             title="Aún no hay recetas"
@@ -222,17 +244,17 @@ function RecipesPage() {
               deletingId={deletingId}
               items={filteredRecipes}
               onDelete={(recipe) => {
-                setRecipeToDelete(recipe)
-                setDeleteError('')
+                setRecipeToDelete(recipe);
+                setDeleteError("");
               }}
               onEdit={(recipe) => {
-                setEditingRecipe(recipe)
-                setFormError('')
-                setFormOpen(true)
+                setEditingRecipe(recipe);
+                setFormError("");
+                setFormOpen(true);
               }}
               onViewDetails={(recipe) => {
-                setStartWithAddForm(false)
-                setSelectedRecipe(recipe)
+                setStartWithAddForm(false);
+                setSelectedRecipe(recipe);
               }}
             />
           </>
@@ -243,11 +265,11 @@ function RecipesPage() {
         <RecipeForm
           error={formError}
           initialValues={editingRecipe}
-          key={editingRecipe?.id ?? 'new-recipe'}
+          key={editingRecipe?.id ?? "new-recipe"}
           onCancel={() => {
-            setFormOpen(false)
-            setEditingRecipe(null)
-            setFormError('')
+            setFormOpen(false);
+            setEditingRecipe(null);
+            setFormError("");
           }}
           onSubmit={handleSaveRecipe}
           products={products}
@@ -272,8 +294,8 @@ function RecipesPage() {
           error={deleteError}
           onCancel={() => {
             if (deletingId === null) {
-              setRecipeToDelete(null)
-              setDeleteError('')
+              setRecipeToDelete(null);
+              setDeleteError("");
             }
           }}
           onConfirm={handleDeleteRecipe}
@@ -283,13 +305,13 @@ function RecipesPage() {
 
       <Toast
         duration={4500}
-        key={toast?.message ?? 'empty-recipe-toast'}
+        key={toast?.message ?? "empty-recipe-toast"}
         message={toast?.message}
         onClose={dismissToast}
-        type={toast?.type ?? 'success'}
+        type={toast?.type ?? "success"}
       />
     </>
-  )
+  );
 }
 
-export default RecipesPage
+export default RecipesPage;

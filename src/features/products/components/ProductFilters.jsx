@@ -2,7 +2,9 @@ function ProductFilters({ search, onSearchChange }) {
   return (
     <div className="inventory-filters">
       <label className="search-field">
-        <span className="sr-only">Buscar producto por nombre, codigo, categoria o unidad</span>
+        <span className="sr-only">
+          Buscar producto por nombre, codigo, categoria o unidad
+        </span>
         <span aria-hidden="true">Buscar</span>
         <input
           type="search"
@@ -12,7 +14,7 @@ function ProductFilters({ search, onSearchChange }) {
         />
       </label>
     </div>
-  )
+  );
 }
 
-export default ProductFilters
+export default ProductFilters;

@@ -1,0 +1,21 @@
+.measurement-unit-table {
+  table-layout: fixed;
+}
+
+.measurement-unit-table th:first-child,
+.measurement-unit-table td:first-child {
+  width: 25%;
+}
+
+.measurement-unit-table .measurement-unit-abbreviation {
+  width: 18%;
+}
+
+.measurement-unit-table .measurement-unit-description {
+  width: 37%;
+}
+
+.measurement-unit-table .measurement-unit-actions {
+  width: 20%;
+  text-align: right;
+}

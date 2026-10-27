@@ -12,7 +12,7 @@ function MovementTypeFilters({ search, onSearchChange }) {
         />
       </label>
     </div>
-  )
+  );
 }
 
-export default MovementTypeFilters
+export default MovementTypeFilters;

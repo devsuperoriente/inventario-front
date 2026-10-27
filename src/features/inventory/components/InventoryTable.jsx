@@ -1,5 +1,5 @@
-import EmptyState from '../../../components/feedback/EmptyState.jsx'
-import StatusBadge from '../../../components/ui/StatusBadge.jsx'
+import EmptyState from "../../../components/feedback/EmptyState.jsx";
+import StatusBadge from "../../../components/ui/StatusBadge.jsx";
 
 function InventoryTable({ items }) {
   if (items.length === 0) {
@@ -8,7 +8,7 @@ function InventoryTable({ items }) {
         title="No se encontraron insumos"
         description="Prueba con otro termino o cambia el filtro de estado."
       />
-    )
+    );
   }
 
   return (
@@ -29,22 +29,32 @@ function InventoryTable({ items }) {
             <tr key={item.id}>
               <td>
                 <strong>{item.name}</strong>
-                <span className="table-subtext">{item.category} · {item.supplier}</span>
+                <span className="table-subtext">
+                  {item.category} · {item.supplier}
+                </span>
               </td>
               <td>
                 <strong>{item.lot}</strong>
-                <span className="table-subtext">Vence {item.expirationDate}</span>
+                <span className="table-subtext">
+                  Vence {item.expirationDate}
+                </span>
               </td>
-              <td><strong>{item.quantity} {item.unit}</strong></td>
+              <td>
+                <strong>
+                  {item.quantity} {item.unit}
+                </strong>
+              </td>
               <td>{item.location}</td>
               <td>{item.temperature}</td>
-              <td><StatusBadge status={item.status} /></td>
+              <td>
+                <StatusBadge status={item.status} />
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
-  )
+  );
 }
 
-export default InventoryTable
+export default InventoryTable;

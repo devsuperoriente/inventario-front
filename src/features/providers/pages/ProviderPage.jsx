@@ -1,160 +1,163 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import EmptyState from '../../../components/feedback/EmptyState.jsx'
-import PageHeading from '../../../components/ui/PageHeading.jsx'
-import DeleteProviderModal from '../components/DeleteProviderModal.jsx'
-import ProviderFilters from '../components/ProviderFilters.jsx'
-import ProviderForm from '../components/ProviderForm.jsx'
-import ProviderTable from '../components/ProviderTable.jsx'
-import Toast from '../../../components/feedback/Toast.jsx'
+import { useCallback, useEffect, useMemo, useState } from "react";
+import EmptyState from "../../../components/feedback/EmptyState.jsx";
+import PageHeading from "../../../components/ui/PageHeading.jsx";
+import DeleteProviderModal from "../components/DeleteProviderModal.jsx";
+import ProviderFilters from "../components/ProviderFilters.jsx";
+import ProviderForm from "../components/ProviderForm.jsx";
+import ProviderTable from "../components/ProviderTable.jsx";
+import Toast from "../../../components/feedback/Toast.jsx";
 import {
   createProvider,
   deleteProvider,
   getProviders,
   updateProvider,
-} from '../services/ProviderApi.js'
+} from "../services/ProviderApi.js";
 
 function ProviderPage() {
-  const [providers, setProviders] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [search, setSearch] = useState('')
-  const [isFormOpen, setIsFormOpen] = useState(false)
-  const [editingProvider, setEditingProvider] = useState(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [createError, setCreateError] = useState(null)
-  const [providerToDelete, setProviderToDelete] = useState(null)
-  const [deleteError, setDeleteError] = useState(null)
-  const [deletingId, setDeletingId] = useState(null)
+  const [providers, setProviders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [search, setSearch] = useState("");
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingProvider, setEditingProvider] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [createError, setCreateError] = useState(null);
+  const [providerToDelete, setProviderToDelete] = useState(null);
+  const [deleteError, setDeleteError] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
 
   const fetchProviders = useCallback(async () => {
     try {
-      const data = await getProviders()
-      setProviders(data)
+      const data = await getProviders();
+      setProviders(data);
     } catch (err) {
-      console.error('Error al cargar proveedores:', err)
-      setError(err.message)
+      console.error("Error al cargar proveedores:", err);
+      setError(err.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
 
-  const [toast, setToast] = useState(null)
+  const [toast, setToast] = useState(null);
 
-  const dismissToast = useCallback(() => setToast(null), [])
+  const dismissToast = useCallback(() => setToast(null), []);
 
   useEffect(() => {
-    let isCurrent = true
+    let isCurrent = true;
 
     getProviders()
       .then((data) => {
-        if (isCurrent) setProviders(data)
+        if (isCurrent) setProviders(data);
       })
       .catch((err) => {
-        console.error('Error al cargar proveedores:', err)
-        if (isCurrent) setError(err.message)
+        console.error("Error al cargar proveedores:", err);
+        if (isCurrent) setError(err.message);
       })
       .finally(() => {
-        if (isCurrent) setLoading(false)
-      })
+        if (isCurrent) setLoading(false);
+      });
 
     return () => {
-      isCurrent = false
-    }
-  }, [])
+      isCurrent = false;
+    };
+  }, []);
 
   const filteredProviders = useMemo(() => {
-    const normalizedSearch = search.trim().toLocaleLowerCase()
+    const normalizedSearch = search.trim().toLocaleLowerCase();
 
     return providers.filter((provider) =>
-      [provider.name, provider.nit, provider.email, provider.phone]
-        .some((value) => String(value ?? '').toLocaleLowerCase().includes(normalizedSearch)),
-    )
-  }, [providers, search])
+      [provider.name, provider.nit, provider.email, provider.phone].some(
+        (value) =>
+          String(value ?? "")
+            .toLocaleLowerCase()
+            .includes(normalizedSearch),
+      ),
+    );
+  }, [providers, search]);
 
   async function handleSaveProvider(formData) {
-    setIsSubmitting(true)
-    setCreateError(null)
-    setToast(null)
+    setIsSubmitting(true);
+    setCreateError(null);
+    setToast(null);
 
     try {
-      const wasEditing = Boolean(editingProvider)
+      const wasEditing = Boolean(editingProvider);
       if (editingProvider) {
-        await updateProvider(editingProvider.id, formData)
+        await updateProvider(editingProvider.id, formData);
       } else {
-        await createProvider(formData)
+        await createProvider(formData);
       }
-      setIsFormOpen(false)
-      setEditingProvider(null)
-      setLoading(true)
-      setError(null)
-      await fetchProviders()
+      setIsFormOpen(false);
+      setEditingProvider(null);
+      setLoading(true);
+      setError(null);
+      await fetchProviders();
       setToast({
-        type: 'success',
+        type: "success",
         message: wasEditing
-          ? 'Proveedor actualizado correctamente.'
-          : 'Proveedor creado correctamente.',
-      })
+          ? "Proveedor actualizado correctamente."
+          : "Proveedor creado correctamente.",
+      });
     } catch (err) {
-      console.error('Error al guardar proveedor:', err)
-      setCreateError(err.message)
+      console.error("Error al guardar proveedor:", err);
+      setCreateError(err.message);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
   }
 
   function openCreateForm() {
-    setEditingProvider(null)
-    setCreateError(null)
-    setIsFormOpen(true)
+    setEditingProvider(null);
+    setCreateError(null);
+    setIsFormOpen(true);
   }
 
   function openEditForm(provider) {
-    setEditingProvider(provider)
-    setCreateError(null)
-    setIsFormOpen(true)
+    setEditingProvider(provider);
+    setCreateError(null);
+    setIsFormOpen(true);
   }
 
   function openDeleteModal(provider) {
-    setProviderToDelete(provider)
-    setDeleteError(null)
+    setProviderToDelete(provider);
+    setDeleteError(null);
   }
- 
+
   async function handleDeleteProvider() {
-    if (!providerToDelete) return
+    if (!providerToDelete) return;
 
-    const provider = providerToDelete
+    const provider = providerToDelete;
 
-    setDeletingId(provider.id)
-    setDeleteError(null)
-    setToast(null)
+    setDeletingId(provider.id);
+    setDeleteError(null);
+    setToast(null);
 
     try {
-      await deleteProvider(provider.id)
+      await deleteProvider(provider.id);
 
       setProviders((currentProviders) =>
         currentProviders.filter(
-          (currentProvider) => currentProvider.id !== provider.id
-        )
-      )
+          (currentProvider) => currentProvider.id !== provider.id,
+        ),
+      );
 
-      setProviderToDelete(null)
+      setProviderToDelete(null);
       setToast({
-        type: 'success',
+        type: "success",
         message: `Proveedor "${provider.name}" eliminado correctamente.`,
-      })
+      });
     } catch (err) {
-      console.error('Error al eliminar proveedor:', err)
-      const message = `No se pudo eliminar a "${provider.name}". ${err.message}`
-      setDeleteError(message)
+      console.error("Error al eliminar proveedor:", err);
+      const message = `No se pudo eliminar a "${provider.name}". ${err.message}`;
+      setDeleteError(message);
       setToast({
-        type: 'warning',
+        type: "warning",
         message: `${message} Verifica si está asociado a otros registros e inténtalo de nuevo.`,
-      })
+      });
     } finally {
-      setDeletingId(null)
+      setDeletingId(null);
     }
   }
-
 
   return (
     <>
@@ -169,7 +172,9 @@ function ProviderPage() {
         <div className="panel-heading provider-panel-heading">
           <div>
             <h2>Proveedores registrados</h2>
-            <p>{filteredProviders.length} de {providers.length} proveedores</p>
+            <p>
+              {filteredProviders.length} de {providers.length} proveedores
+            </p>
           </div>
           <button
             className="btn-primary"
@@ -186,9 +191,9 @@ function ProviderPage() {
             <button
               className="btn-secondary"
               onClick={() => {
-                setLoading(true)
-                setError(null)
-                fetchProviders()
+                setLoading(true);
+                setError(null);
+                fetchProviders();
               }}
               type="button"
             >
@@ -196,7 +201,9 @@ function ProviderPage() {
             </button>
           </div>
         ) : loading ? (
-          <p className="feature-loading" role="status">Cargando proveedores...</p>
+          <p className="feature-loading" role="status">
+            Cargando proveedores...
+          </p>
         ) : providers.length === 0 ? (
           <EmptyState
             title="Aun no hay proveedores"
@@ -217,13 +224,13 @@ function ProviderPage() {
 
       {isFormOpen && (
         <ProviderForm
-          key={editingProvider?.id ?? 'new-provider'}
+          key={editingProvider?.id ?? "new-provider"}
           error={createError}
           initialValues={editingProvider}
           onCancel={() => {
-            setIsFormOpen(false)
-            setEditingProvider(null)
-            setCreateError(null)
+            setIsFormOpen(false);
+            setEditingProvider(null);
+            setCreateError(null);
           }}
           onSubmit={handleSaveProvider}
           submitting={isSubmitting}
@@ -236,8 +243,8 @@ function ProviderPage() {
           error={deleteError}
           onCancel={() => {
             if (deletingId === null) {
-              setProviderToDelete(null)
-              setDeleteError(null)
+              setProviderToDelete(null);
+              setDeleteError(null);
             }
           }}
           onConfirm={handleDeleteProvider}
@@ -247,13 +254,13 @@ function ProviderPage() {
 
       <Toast
         duration={4500}
-        key={toast?.message ?? 'empty-toast'}
+        key={toast?.message ?? "empty-toast"}
         message={toast?.message}
         onClose={dismissToast}
-        type={toast?.type ?? 'success'}
+        type={toast?.type ?? "success"}
       />
     </>
-  )
+  );
 }
 
-export default ProviderPage
+export default ProviderPage;

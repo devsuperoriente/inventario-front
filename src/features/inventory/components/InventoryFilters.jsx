@@ -13,7 +13,10 @@ function InventoryFilters({ search, onSearchChange, status, onStatusChange }) {
       </label>
       <label className="filter-field">
         <span className="sr-only">Filtrar por estado</span>
-        <select value={status} onChange={(event) => onStatusChange(event.target.value)}>
+        <select
+          value={status}
+          onChange={(event) => onStatusChange(event.target.value)}
+        >
           <option value="all">Todos los estados</option>
           <option value="available">Disponible</option>
           <option value="low">Stock bajo</option>
@@ -21,7 +24,7 @@ function InventoryFilters({ search, onSearchChange, status, onStatusChange }) {
         </select>
       </label>
     </div>
-  )
+  );
 }
 
-export default InventoryFilters
+export default InventoryFilters;

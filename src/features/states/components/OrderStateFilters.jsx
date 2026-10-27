@@ -12,7 +12,7 @@ function OrderStateFilters({ search, onSearchChange }) {
         />
       </label>
     </div>
-  )
+  );
 }
 
-export default OrderStateFilters
+export default OrderStateFilters;

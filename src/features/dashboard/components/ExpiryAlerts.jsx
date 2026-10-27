@@ -1,4 +1,4 @@
-import StatusBadge from '../../../components/ui/StatusBadge.jsx'
+import StatusBadge from "../../../components/ui/StatusBadge.jsx";
 
 function ExpiryAlerts({ items }) {
   return (
@@ -25,18 +25,24 @@ function ExpiryAlerts({ items }) {
           <tbody>
             {items.map((item) => (
               <tr key={item.id}>
-                <td><strong>{item.name}</strong></td>
+                <td>
+                  <strong>{item.name}</strong>
+                </td>
                 <td>{item.lot}</td>
                 <td>{item.expirationDate}</td>
-                <td>{item.quantity} {item.unit}</td>
-                <td><StatusBadge status={item.status} /></td>
+                <td>
+                  {item.quantity} {item.unit}
+                </td>
+                <td>
+                  <StatusBadge status={item.status} />
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
     </section>
-  )
+  );
 }
 
-export default ExpiryAlerts
+export default ExpiryAlerts;

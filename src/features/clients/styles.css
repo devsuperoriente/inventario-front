@@ -1,0 +1,25 @@
+.client-table th:first-child,
+.client-table td:first-child {
+  width: 24%;
+}
+
+.client-table .client-column-document {
+  width: 17%;
+}
+
+.client-table .client-column-address {
+  width: 20%;
+}
+
+.client-table .client-column-phone {
+  width: 15%;
+}
+
+.client-table .client-column-email {
+  width: 24%;
+}
+
+.client-table .client-column-actions {
+  width: 20%;
+  text-align: right;
+}

@@ -1,345 +1,380 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import EmptyState from '../../../components/feedback/EmptyState.jsx'
-import Toast from '../../../components/feedback/Toast.jsx'
-import Modal from '../../../components/ui/Modal.jsx'
-import PageHeading from '../../../components/ui/PageHeading.jsx'
-import { useAuth } from '../../../auth/useAuth.js'
-import { getClients } from '../../clients/services/clientsApi.js'
-import { getProducts } from '../../products/services/productsApi.js'
-import DeleteOrderModal from '../components/DeleteOrderModal.jsx'
-import OrderFilters from '../components/OrderFilters.jsx'
-import OrderForm from '../components/OrderForm.jsx'
-import OrderTable from '../components/OrderTable.jsx'
-import OrderDetailForm from '../components/details/OrderDetailForm.jsx'
-import OrderDetailTable from '../components/details/OrderDetailTable.jsx'
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import EmptyState from "../../../components/feedback/EmptyState.jsx";
+import Toast from "../../../components/feedback/Toast.jsx";
+import Modal from "../../../components/ui/Modal.jsx";
+import PageHeading from "../../../components/ui/PageHeading.jsx";
+import { useAuth } from "../../../auth/useAuth.js";
+import { getClients } from "../../clients/services/clientsApi.js";
+import { getProducts } from "../../products/services/productsApi.js";
+import DeleteOrderModal from "../components/DeleteOrderModal.jsx";
+import OrderFilters from "../components/OrderFilters.jsx";
+import OrderForm from "../components/OrderForm.jsx";
+import OrderTable from "../components/OrderTable.jsx";
+import OrderDetailForm from "../components/details/OrderDetailForm.jsx";
+import OrderDetailTable from "../components/details/OrderDetailTable.jsx";
 import {
   createOrder,
   deleteOrder,
   getOrders,
+  getOrdersToday,
   updateOrder,
-} from '../services/ordersApi.js'
+} from "../services/ordersApi.js";
 import {
   createOrderDetail,
   deleteOrderDetail,
   getOrderDetails,
   updateOrderDetail,
-} from '../services/orderDetailsApi.js'
+} from "../services/orderDetailsApi.js";
 
 function getOrderId(detail) {
-  return detail.orderId ?? detail.order?.id
+  return detail.orderId ?? detail.order?.id;
 }
 
 function getOrderLabel(order) {
-  return order.numberOrder ?? `#${order.id}`
+  return order.numberOrder ?? `#${order.id}`;
 }
 
 function OrdersPage() {
-  const { user } = useAuth()
-  const [orders, setOrders] = useState([])
-  const [clients, setClients] = useState([])
-  const [clientsLoading, setClientsLoading] = useState(false)
-  const [clientsError, setClientsError] = useState('')
-  const [loading, setLoading] = useState(true)
-  const [loadError, setLoadError] = useState(null)
-  const [search, setSearch] = useState('')
-  const [formOpen, setFormOpen] = useState(false)
-  const [editingOrder, setEditingOrder] = useState(null)
-  const [formError, setFormError] = useState(null)
-  const [saving, setSaving] = useState(false)
-  const [orderToDelete, setOrderToDelete] = useState(null)
-  const [deleteError, setDeleteError] = useState(null)
-  const [deletingId, setDeletingId] = useState(null)
-  const [selectedOrder, setSelectedOrder] = useState(null)
-  const [details, setDetails] = useState([])
-  const [products, setProducts] = useState([])
-  const [detailsLoading, setDetailsLoading] = useState(false)
-  const [detailsError, setDetailsError] = useState(null)
-  const [detailFormOpen, setDetailFormOpen] = useState(false)
-  const [editingDetail, setEditingDetail] = useState(null)
-  const [detailFormError, setDetailFormError] = useState(null)
-  const [savingDetail, setSavingDetail] = useState(false)
-  const [detailToDelete, setDetailToDelete] = useState(null)
-  const [detailDeleteError, setDetailDeleteError] = useState(null)
-  const [deletingDetailId, setDeletingDetailId] = useState(null)
-  const [toast, setToast] = useState(null)
-  const detailRequestId = useRef(0)
+  const { user } = useAuth();
+  const [orders, setOrders] = useState([]);
+  const [clients, setClients] = useState([]);
+  const [clientsLoading, setClientsLoading] = useState(false);
+  const [clientsError, setClientsError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const [search, setSearch] = useState("");
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingOrder, setEditingOrder] = useState(null);
+  const [formError, setFormError] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState(null);
+  const [deleteError, setDeleteError] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [details, setDetails] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [detailsError, setDetailsError] = useState(null);
+  const [detailFormOpen, setDetailFormOpen] = useState(false);
+  const [editingDetail, setEditingDetail] = useState(null);
+  const [detailFormError, setDetailFormError] = useState(null);
+  const [savingDetail, setSavingDetail] = useState(false);
+  const [detailToDelete, setDetailToDelete] = useState(null);
+  const [detailDeleteError, setDetailDeleteError] = useState(null);
+  const [deletingDetailId, setDeletingDetailId] = useState(null);
+  const [toast, setToast] = useState(null);
+  const detailRequestId = useRef(0);
 
-  const dismissToast = useCallback(() => setToast(null), [])
+  const dismissToast = useCallback(() => setToast(null), []);
+
+  const isAdmin = useMemo(() => {
+    const role = String(user?.name).toUpperCase();
+    return role === "ADMIN";
+  }, [user]);
 
   const fetchOrders = useCallback(async () => {
     try {
-      const ordersData = await getOrders()
-      setOrders(ordersData)
-      setLoadError(null)
-      return ordersData
+      const requestFn = isAdmin ? getOrders : getOrdersToday;
+      const ordersData = await requestFn();
+      setOrders(ordersData);
+      setLoadError(null);
+      return ordersData;
     } catch (error) {
-      console.error('Error al cargar pedidos:', error)
-      setLoadError(error.message)
-      return null
+      console.error("Error al cargar pedidos:", error);
+      setLoadError(error.message);
+      return null;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    let isCurrent = true
+    let isCurrent = true;
 
-    getOrders()
+    const requestFn = isAdmin ? getOrders : getOrdersToday;
+
+    requestFn()
       .then((ordersData) => {
-        if (!isCurrent) return
-        setOrders(ordersData)
-        setLoadError(null)
+        if (!isCurrent) return;
+        setOrders(Array.isArray(ordersData) ? ordersData : []);
+        setLoadError(null);
       })
       .catch((error) => {
-        console.error('Error al cargar pedidos:', error)
-        if (isCurrent) setLoadError(error.message)
+        console.error("Error al cargar pedidos:", error);
+        if (isCurrent) setLoadError(error.message);
       })
       .finally(() => {
-        if (isCurrent) setLoading(false)
-      })
+        if (isCurrent) setLoading(false);
+      });
 
     return () => {
-      isCurrent = false
-    }
-  }, [])
+      isCurrent = false;
+    };
+  }, [isAdmin]);
 
   const filteredOrders = useMemo(() => {
-    const normalizedSearch = search.trim().toLocaleLowerCase()
+    const normalizedSearch = search.trim().toLocaleLowerCase();
 
-    return orders.filter((order) => [
-      order.numberOrder,
-      order.orderNumber,
-      order.dateOrder?.slice(0, 10),
-      order.client?.name,
-      order.clientName,
-    ].some((value) => String(value ?? '').toLocaleLowerCase().includes(normalizedSearch)))
-  }, [orders, search])
+    return orders.filter((order) =>
+      [
+        order.numberOrder,
+        order.orderNumber,
+        order.dateOrder?.slice(0, 10),
+        order.client?.name,
+        order.clientName,
+      ].some((value) =>
+        String(value ?? "")
+          .toLocaleLowerCase()
+          .includes(normalizedSearch),
+      ),
+    );
+  }, [orders, search]);
 
   const productsById = useMemo(
     () => new Map(products.map((product) => [String(product.id), product])),
     [products],
-  )
-  const selectedClientName = selectedOrder?.client?.name ?? selectedOrder?.clientName
+  );
+  const selectedClientName =
+    selectedOrder?.client?.name ?? selectedOrder?.clientName;
   const detailsDescription = selectedOrder
-    ? `${selectedClientName ? `Cliente: ${selectedClientName}. ` : ''}Fecha del pedido: ${selectedOrder.dateOrder?.slice(0, 10) || '—'}. Administra los productos y cantidades solicitados.`
-    : ''
+    ? `${selectedClientName ? `Cliente: ${selectedClientName}. ` : ""}Fecha del pedido: ${selectedOrder.dateOrder?.slice(0, 10) || "—"}. Administra los productos y cantidades solicitados.`
+    : "";
 
   async function loadOrderDetails(order) {
-    const requestId = detailRequestId.current + 1
-    detailRequestId.current = requestId
-    setSelectedOrder(order)
-    setDetailsLoading(true)
-    setDetailsError(null)
-    setDetails([])
+    const requestId = detailRequestId.current + 1;
+    detailRequestId.current = requestId;
+    setSelectedOrder(order);
+    setDetailsLoading(true);
+    setDetailsError(null);
+    setDetails([]);
 
     try {
-      const [allDetails, productList] = await Promise.all([getOrderDetails(), getProducts()])
-      if (detailRequestId.current !== requestId) return
+      const [allDetails, productList] = await Promise.all([
+        getOrderDetails(),
+        getProducts(),
+      ]);
+      if (detailRequestId.current !== requestId) return;
 
-      setDetails(allDetails.filter((detail) => String(getOrderId(detail)) === String(order.id)))
-      setProducts(productList)
-      return productList.length > 0
+      setDetails(
+        allDetails.filter(
+          (detail) => String(getOrderId(detail)) === String(order.id),
+        ),
+      );
+      setProducts(productList);
+      return productList.length > 0;
     } catch (error) {
-      console.error('Error al cargar el detalle del pedido:', error)
-      if (detailRequestId.current === requestId) setDetailsError(error.message)
-      return false
+      console.error("Error al cargar el detalle del pedido:", error);
+      if (detailRequestId.current === requestId) setDetailsError(error.message);
+      return false;
     } finally {
-      if (detailRequestId.current === requestId) setDetailsLoading(false)
+      if (detailRequestId.current === requestId) setDetailsLoading(false);
     }
   }
 
   async function handleSaveOrder(formData) {
-    setSaving(true)
-    setFormError(null)
-    setToast(null)
+    setSaving(true);
+    setFormError(null);
+    setToast(null);
 
     try {
-      const wasEditing = Boolean(editingOrder)
-      const existingOrderIds = new Set(orders.map((order) => String(order.id)))
-      let createdOrder
+      const wasEditing = Boolean(editingOrder);
+      const existingOrderIds = new Set(orders.map((order) => String(order.id)));
+      let createdOrder;
       if (editingOrder) {
-        await updateOrder(editingOrder.id, formData)
+        await updateOrder(editingOrder.id, formData);
         setSelectedOrder((currentOrder) =>
           String(currentOrder?.id) === String(editingOrder.id)
             ? { ...currentOrder, ...formData }
             : currentOrder,
-        )
+        );
       } else {
-        createdOrder = await createOrder(formData)
+        createdOrder = await createOrder(formData);
       }
 
-      setFormOpen(false)
-      setEditingOrder(null)
-      setLoading(true)
-      const refreshedOrders = await fetchOrders()
+      setFormOpen(false);
+      setEditingOrder(null);
+      setLoading(true);
+      const refreshedOrders = await fetchOrders();
 
       if (wasEditing) {
-        setToast({ type: 'success', message: 'Pedido actualizado correctamente.' })
+        setToast({
+          type: "success",
+          message: "Pedido actualizado correctamente.",
+        });
       } else {
         const orderForDetails = createdOrder?.id
           ? createdOrder
-          : refreshedOrders?.find((order) => (
-            !existingOrderIds.has(String(order.id))
-            && String(order.clientId ?? order.client?.id) === String(formData.clientId)
-          ))
+          : refreshedOrders?.find(
+              (order) =>
+                !existingOrderIds.has(String(order.id)) &&
+                String(order.clientId ?? order.client?.id) ===
+                  String(formData.clientId),
+            );
 
         if (orderForDetails?.id) {
           const selectedClient = clients.find(
             (client) => String(client.id) === String(formData.clientId),
-          )
+          );
           const hasProducts = await loadOrderDetails({
             ...orderForDetails,
             client: orderForDetails.client ?? selectedClient,
-          })
+          });
           if (hasProducts) {
-            setEditingDetail(null)
-            setDetailFormError(null)
-            setDetailFormOpen(true)
+            setEditingDetail(null);
+            setDetailFormError(null);
+            setDetailFormOpen(true);
           }
         } else {
           setToast({
-            type: 'warning',
-            message: 'Pedido creado, pero no se pudo abrir su detalle automáticamente. Búscalo en la lista para agregar productos.',
-          })
+            type: "warning",
+            message:
+              "Pedido creado, pero no se pudo abrir su detalle automáticamente. Búscalo en la lista para agregar productos.",
+          });
         }
       }
     } catch (error) {
-      console.error('Error al guardar pedido:', error)
-      setFormError(error.message)
+      console.error("Error al guardar pedido:", error);
+      setFormError(error.message);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
   }
 
   async function loadClientsForOrder() {
-    setClientsLoading(true)
-    setClientsError('')
+    setClientsLoading(true);
+    setClientsError("");
     try {
-      const clientsData = await getClients()
-      setClients(clientsData)
+      const clientsData = await getClients();
+      setClients(clientsData);
     } catch (error) {
-      console.error('Error al cargar clientes para el pedido:', error)
-      setClientsError(`No se pudieron cargar los clientes: ${error.message}`)
+      console.error("Error al cargar clientes para el pedido:", error);
+      setClientsError(`No se pudieron cargar los clientes: ${error.message}`);
     } finally {
-      setClientsLoading(false)
+      setClientsLoading(false);
     }
   }
 
   async function openCreateForm() {
-    setEditingOrder(null)
-    setFormError(null)
-    setFormOpen(true)
-    await loadClientsForOrder()
+    setEditingOrder(null);
+    setFormError(null);
+    setFormOpen(true);
+    await loadClientsForOrder();
   }
 
   async function openEditForm(order) {
-    setEditingOrder(order)
-    setFormError(null)
-    setFormOpen(true)
-    await loadClientsForOrder()
+    setEditingOrder(order);
+    setFormError(null);
+    setFormOpen(true);
+    await loadClientsForOrder();
   }
 
   async function handleDeleteOrder() {
-    if (!orderToDelete) return
-    const order = orderToDelete
+    if (!orderToDelete) return;
+    const order = orderToDelete;
 
-    setDeletingId(order.id)
-    setDeleteError(null)
-    setToast(null)
+    setDeletingId(order.id);
+    setDeleteError(null);
+    setToast(null);
 
     try {
-      await deleteOrder(order.id)
+      await deleteOrder(order.id);
       setOrders((currentOrders) =>
         currentOrders.filter((currentOrder) => currentOrder.id !== order.id),
-      )
+      );
       if (String(selectedOrder?.id) === String(order.id)) {
-        detailRequestId.current += 1
-        setSelectedOrder(null)
-        setDetails([])
+        detailRequestId.current += 1;
+        setSelectedOrder(null);
+        setDetails([]);
       }
-      setOrderToDelete(null)
-      setToast({ type: 'success', message: 'Pedido eliminado correctamente.' })
+      setOrderToDelete(null);
+      setToast({ type: "success", message: "Pedido eliminado correctamente." });
     } catch (error) {
-      console.error('Error al eliminar pedido:', error)
-      const message = `No se pudo eliminar el pedido.`
-      setDeleteError(message)
+      console.error("Error al eliminar pedido:", error);
+      const message = `No se pudo eliminar el pedido.`;
+      setDeleteError(message);
       setToast({
-        type: 'warning',
-        message: 'Antes de continuar, elimine los productos asociados a este registro.',
-      })
+        type: "warning",
+        message:
+          "Antes de continuar, elimine los productos asociados a este registro.",
+      });
     } finally {
-      setDeletingId(null)
+      setDeletingId(null);
     }
   }
 
   async function handleSaveDetail(formData) {
-    if (!selectedOrder) return
+    if (!selectedOrder) return;
 
-    setSavingDetail(true)
-    setDetailFormError(null)
-    setToast(null)
+    setSavingDetail(true);
+    setDetailFormError(null);
+    setToast(null);
 
     try {
-      const detailData = { orderId: selectedOrder.id, ...formData }
-      const wasEditing = Boolean(editingDetail)
+      const detailData = { orderId: selectedOrder.id, ...formData };
+      const wasEditing = Boolean(editingDetail);
       if (editingDetail) {
-        await updateOrderDetail(editingDetail.id, detailData)
+        await updateOrderDetail(editingDetail.id, detailData);
       } else {
-        await createOrderDetail(detailData)
+        await createOrderDetail(detailData);
       }
 
-      setDetailFormOpen(false)
-      setEditingDetail(null)
-      await loadOrderDetails(selectedOrder)
+      setDetailFormOpen(false);
+      setEditingDetail(null);
+      await loadOrderDetails(selectedOrder);
       setToast({
-        type: 'success',
-        message: wasEditing ? 'Detalle actualizado correctamente.' : 'Producto agregado al pedido.',
-      })
+        type: "success",
+        message: wasEditing
+          ? "Detalle actualizado correctamente."
+          : "Producto agregado al pedido.",
+      });
     } catch (error) {
-      console.error('Error al guardar detalle de pedido:', error)
-      setDetailFormError(error.message)
+      console.error("Error al guardar detalle de pedido:", error);
+      setDetailFormError(error.message);
     } finally {
-      setSavingDetail(false)
+      setSavingDetail(false);
     }
   }
 
   async function handleDeleteDetail() {
-    if (!detailToDelete || !selectedOrder) return
-    const detail = detailToDelete
-    const product = detail.product ?? productsById.get(String(detail.productId))
+    if (!detailToDelete || !selectedOrder) return;
+    const detail = detailToDelete;
+    const product =
+      detail.product ?? productsById.get(String(detail.productId));
 
-    setDeletingDetailId(detail.id)
-    setDetailDeleteError(null)
-    setToast(null)
+    setDeletingDetailId(detail.id);
+    setDetailDeleteError(null);
+    setToast(null);
 
     try {
-      await deleteOrderDetail(detail.id)
+      await deleteOrderDetail(detail.id);
       setDetails((currentDetails) =>
-        currentDetails.filter((currentDetail) => currentDetail.id !== detail.id),
-      )
-      setDetailToDelete(null)
+        currentDetails.filter(
+          (currentDetail) => currentDetail.id !== detail.id,
+        ),
+      );
+      setDetailToDelete(null);
       setToast({
-        type: 'success',
-        message: `${product?.name ?? 'Producto'} eliminado del pedido.`,
-      })
+        type: "success",
+        message: `${product?.name ?? "Producto"} eliminado del pedido.`,
+      });
     } catch (error) {
-      console.error('Error al eliminar detalle de pedido:', error)
-      const message = `No se pudo quitar el producto del pedido. ${error.message}`
-      setDetailDeleteError(message)
-      setToast({ type: 'warning', message })
+      console.error("Error al eliminar detalle de pedido:", error);
+      const message = `No se pudo quitar el producto del pedido. ${error.message}`;
+      setDetailDeleteError(message);
+      setToast({ type: "warning", message });
     } finally {
-      setDeletingDetailId(null)
+      setDeletingDetailId(null);
     }
   }
 
   function closeDetails() {
-    detailRequestId.current += 1
-    setSelectedOrder(null)
-    setDetails([])
-    setDetailsError(null)
-    setDetailFormOpen(false)
-    setEditingDetail(null)
-    setDetailToDelete(null)
+    detailRequestId.current += 1;
+    setSelectedOrder(null);
+    setDetails([]);
+    setDetailsError(null);
+    setDetailFormOpen(false);
+    setEditingDetail(null);
+    setDetailToDelete(null);
   }
 
   return (
@@ -355,9 +390,15 @@ function OrdersPage() {
         <div className="panel-heading provider-panel-heading">
           <div>
             <h2>Pedidos registrados</h2>
-            <p>{filteredOrders.length} de {orders.length} pedidos</p>
+            <p>
+              {filteredOrders.length} de {orders.length} pedidos
+            </p>
           </div>
-          <button className="btn-primary" onClick={openCreateForm} type="button">
+          <button
+            className="btn-primary"
+            onClick={openCreateForm}
+            type="button"
+          >
             + Nuevo pedido
           </button>
         </div>
@@ -368,9 +409,9 @@ function OrdersPage() {
             <button
               className="btn-secondary"
               onClick={() => {
-                setLoading(true)
-                setLoadError(null)
-                fetchOrders()
+                setLoading(true);
+                setLoadError(null);
+                fetchOrders();
               }}
               type="button"
             >
@@ -378,7 +419,9 @@ function OrdersPage() {
             </button>
           </div>
         ) : loading ? (
-          <p className="feature-loading" role="status">Cargando pedidos...</p>
+          <p className="feature-loading" role="status">
+            Cargando pedidos...
+          </p>
         ) : orders.length === 0 ? (
           <EmptyState
             title="Aún no hay pedidos"
@@ -391,8 +434,8 @@ function OrdersPage() {
               deletingId={deletingId}
               items={filteredOrders}
               onDelete={(order) => {
-                setOrderToDelete(order)
-                setDeleteError(null)
+                setOrderToDelete(order);
+                setDeleteError(null);
               }}
               onEdit={openEditForm}
               onViewDetails={loadOrderDetails}
@@ -413,16 +456,20 @@ function OrdersPage() {
             {detailFormOpen ? (
               <>
                 <h3 className="order-details-form-title">
-                  {editingDetail ? 'Modificar producto del pedido' : 'Agregar producto al pedido'}
+                  {editingDetail
+                    ? "Modificar producto del pedido"
+                    : "Agregar producto al pedido"}
                 </h3>
                 <OrderDetailForm
                   error={detailFormError}
                   initialValues={editingDetail}
-                  key={editingDetail?.id ?? `new-order-detail-${selectedOrder.id}`}
+                  key={
+                    editingDetail?.id ?? `new-order-detail-${selectedOrder.id}`
+                  }
                   onCancel={() => {
-                    setDetailFormOpen(false)
-                    setEditingDetail(null)
-                    setDetailFormError(null)
+                    setDetailFormOpen(false);
+                    setEditingDetail(null);
+                    setDetailFormError(null);
                   }}
                   onSubmit={handleSaveDetail}
                   products={products}
@@ -432,24 +479,34 @@ function OrdersPage() {
             ) : detailToDelete ? (
               <div className="order-detail-delete-confirmation">
                 <p>
-                  ¿Seguro que deseas quitar{' '}
+                  ¿Seguro que deseas quitar{" "}
                   <strong>
-                    {detailToDelete.product?.name
-                      ?? productsById.get(String(detailToDelete.productId))?.name
-                      ?? 'producto'}
-                  </strong>{' '}
-                  del pedido{detailToDelete.amount != null && (
-                    <> (cantidad: <strong>{detailToDelete.amount}</strong>)</>
-                  )}?
+                    {detailToDelete.product?.name ??
+                      productsById.get(String(detailToDelete.productId))
+                        ?.name ??
+                      "producto"}
+                  </strong>{" "}
+                  del pedido
+                  {detailToDelete.amount != null && (
+                    <>
+                      {" "}
+                      (cantidad: <strong>{detailToDelete.amount}</strong>)
+                    </>
+                  )}
+                  ?
                 </p>
-                {detailDeleteError && <p className="form-error" role="alert">{detailDeleteError}</p>}
+                {detailDeleteError && (
+                  <p className="form-error" role="alert">
+                    {detailDeleteError}
+                  </p>
+                )}
                 <div className="entity-form-actions">
                   <button
                     className="btn-secondary"
                     disabled={deletingDetailId !== null}
                     onClick={() => {
-                      setDetailToDelete(null)
-                      setDetailDeleteError(null)
+                      setDetailToDelete(null);
+                      setDetailDeleteError(null);
                     }}
                     type="button"
                   >
@@ -461,21 +518,26 @@ function OrdersPage() {
                     onClick={handleDeleteDetail}
                     type="button"
                   >
-                    {deletingDetailId !== null ? 'Eliminando...' : 'Quitar producto'}
+                    {deletingDetailId !== null
+                      ? "Eliminando..."
+                      : "Quitar producto"}
                   </button>
                 </div>
               </div>
             ) : (
               <>
                 <div className="order-details-toolbar">
-                  <p>{details.length} producto{details.length === 1 ? '' : 's'} en el pedido</p>
+                  <p>
+                    {details.length} producto{details.length === 1 ? "" : "s"}{" "}
+                    en el pedido
+                  </p>
                   <button
                     className="btn-primary"
                     disabled={detailsLoading || products.length === 0}
                     onClick={() => {
-                      setEditingDetail(null)
-                      setDetailFormError(null)
-                      setDetailFormOpen(true)
+                      setEditingDetail(null);
+                      setDetailFormError(null);
+                      setDetailFormOpen(true);
                     }}
                     type="button"
                   >
@@ -484,7 +546,9 @@ function OrdersPage() {
                 </div>
                 {detailsError ? (
                   <div className="feature-load-error" role="alert">
-                    <p>No se pudo cargar el detalle del pedido: {detailsError}</p>
+                    <p>
+                      No se pudo cargar el detalle del pedido: {detailsError}
+                    </p>
                     <button
                       className="btn-secondary"
                       onClick={() => loadOrderDetails(selectedOrder)}
@@ -494,7 +558,9 @@ function OrdersPage() {
                     </button>
                   </div>
                 ) : detailsLoading ? (
-                  <p className="feature-loading" role="status">Cargando productos del pedido...</p>
+                  <p className="feature-loading" role="status">
+                    Cargando productos del pedido...
+                  </p>
                 ) : products.length === 0 ? (
                   <EmptyState
                     title="No hay productos disponibles"
@@ -505,13 +571,13 @@ function OrdersPage() {
                     deletingId={deletingDetailId}
                     items={details}
                     onDelete={(detail) => {
-                      setDetailToDelete(detail)
-                      setDetailDeleteError(null)
+                      setDetailToDelete(detail);
+                      setDetailDeleteError(null);
                     }}
                     onEdit={(detail) => {
-                      setEditingDetail(detail)
-                      setDetailFormError(null)
-                      setDetailFormOpen(true)
+                      setEditingDetail(detail);
+                      setDetailFormError(null);
+                      setDetailFormOpen(true);
                     }}
                     productsById={productsById}
                   />
@@ -526,11 +592,11 @@ function OrdersPage() {
         <OrderForm
           error={formError}
           initialValues={editingOrder}
-          key={editingOrder?.id ?? 'new-order'}
+          key={editingOrder?.id ?? "new-order"}
           onCancel={() => {
-            setFormOpen(false)
-            setEditingOrder(null)
-            setFormError(null)
+            setFormOpen(false);
+            setEditingOrder(null);
+            setFormError(null);
           }}
           onSubmit={handleSaveOrder}
           clients={clients}
@@ -547,8 +613,8 @@ function OrdersPage() {
           deleting={deletingId === orderToDelete.id}
           onCancel={() => {
             if (deletingId === null) {
-              setOrderToDelete(null)
-              setDeleteError(null)
+              setOrderToDelete(null);
+              setDeleteError(null);
             }
           }}
           onConfirm={handleDeleteOrder}
@@ -558,13 +624,13 @@ function OrdersPage() {
 
       <Toast
         duration={4500}
-        key={toast?.message ?? 'empty-order-toast'}
+        key={toast?.message ?? "empty-order-toast"}
         message={toast?.message}
         onClose={dismissToast}
-        type={toast?.type ?? 'success'}
+        type={toast?.type ?? "success"}
       />
     </>
-  )
+  );
 }
 
-export default OrdersPage
+export default OrdersPage;

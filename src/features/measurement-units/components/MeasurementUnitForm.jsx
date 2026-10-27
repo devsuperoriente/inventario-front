@@ -1,33 +1,39 @@
-import { useState } from 'react'
-import Modal from '../../../components/ui/Modal.jsx'
+import { useState } from "react";
+import Modal from "../../../components/ui/Modal.jsx";
 
 const emptyFormData = {
-  name: '',
-  abbreviation: '',
-  description: '',
-}
+  name: "",
+  abbreviation: "",
+  description: "",
+};
 
-function MeasurementUnitForm({ initialValues, onSubmit, onCancel, submitting, error }) {
+function MeasurementUnitForm({
+  initialValues,
+  onSubmit,
+  onCancel,
+  submitting,
+  error,
+}) {
   const [formData, setFormData] = useState(() => ({
     ...emptyFormData,
     ...initialValues,
-    name: initialValues?.name ?? '',
-    abbreviation: initialValues?.abbreviation ?? '',
-    description: initialValues?.description ?? '',
-  }))
+    name: initialValues?.name ?? "",
+    abbreviation: initialValues?.abbreviation ?? "",
+    description: initialValues?.description ?? "",
+  }));
 
   function handleChange(event) {
-    const { name, value } = event.target
-    setFormData((currentData) => ({ ...currentData, [name]: value }))
+    const { name, value } = event.target;
+    setFormData((currentData) => ({ ...currentData, [name]: value }));
   }
 
   async function handleSubmit(event) {
-    event.preventDefault()
+    event.preventDefault();
     await onSubmit({
       name: formData.name.trim(),
       abbreviation: formData.abbreviation.trim(),
       description: formData.description.trim(),
-    })
+    });
   }
 
   return (
@@ -35,12 +41,16 @@ function MeasurementUnitForm({ initialValues, onSubmit, onCancel, submitting, er
       closeDisabled={submitting}
       description="Registra el nombre, simbolo y descripcion de la unidad."
       onClose={onCancel}
-      title={initialValues ? 'Modificar unidad de medida' : 'Nueva unidad de medida'}
+      title={
+        initialValues ? "Modificar unidad de medida" : "Nueva unidad de medida"
+      }
     >
       <form className="entity-form" onSubmit={handleSubmit}>
         <div className="entity-form-grid measurement-unit-form-grid">
           <label className="entity-form-field">
-            <span>Nombre <span aria-hidden="true">*</span></span>
+            <span>
+              Nombre <span aria-hidden="true">*</span>
+            </span>
             <input
               autoComplete="off"
               maxLength={80}
@@ -52,7 +62,9 @@ function MeasurementUnitForm({ initialValues, onSubmit, onCancel, submitting, er
             />
           </label>
           <label className="entity-form-field">
-            <span>Simbolo o abreviatura <span aria-hidden="true">*</span></span>
+            <span>
+              Simbolo o abreviatura <span aria-hidden="true">*</span>
+            </span>
             <input
               autoComplete="off"
               maxLength={16}
@@ -76,19 +88,32 @@ function MeasurementUnitForm({ initialValues, onSubmit, onCancel, submitting, er
           </label>
         </div>
 
-        {error && <p className="form-error" role="alert">{error}</p>}
+        {error && (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        )}
 
         <div className="entity-form-actions">
-          <button className="btn-secondary" disabled={submitting} onClick={onCancel} type="button">
+          <button
+            className="btn-secondary"
+            disabled={submitting}
+            onClick={onCancel}
+            type="button"
+          >
             Cancelar
           </button>
           <button className="btn-primary" disabled={submitting} type="submit">
-            {submitting ? 'Guardando...' : initialValues ? 'Guardar cambios' : 'Guardar unidad'}
+            {submitting
+              ? "Guardando..."
+              : initialValues
+                ? "Guardar cambios"
+                : "Guardar unidad"}
           </button>
         </div>
       </form>
     </Modal>
-  )
+  );
 }
 
-export default MeasurementUnitForm
+export default MeasurementUnitForm;

@@ -1,0 +1,163 @@
+.dosing-orders-panel {
+  display: grid;
+  gap: 0;
+}
+
+.dosing-orders-search {
+  padding: 16px 20px;
+}
+
+.dosing-orders-search .search-field {
+  width: min(100%, 460px);
+}
+
+.dosing-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 20px 14px;
+}
+
+.dosing-tab {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 13px;
+  border: 1px solid #e5ebe6;
+  border-radius: 8px;
+  color: #647168;
+  background: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.dosing-tab:hover {
+  background: #f3f6f3;
+}
+
+.dosing-tab.is-active {
+  border-color: #548961;
+  color: #2c5838;
+  background: #eff6ef;
+}
+
+.dosing-tab:focus-visible {
+  outline: 2px solid #548961;
+  outline-offset: 2px;
+}
+
+.dosing-tab-count {
+  display: inline-flex;
+  min-width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  border-radius: 20px;
+  color: #56715d;
+  background: #eaf1eb;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.dosing-tab.is-active .dosing-tab-count {
+  color: #fff;
+  background: #548961;
+}
+
+.dosing-orders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr));
+  gap: 14px;
+  padding: 18px 20px 22px;
+}
+
+.dosing-order-card {
+  display: grid;
+  align-content: start;
+  gap: 15px;
+  min-width: 0;
+  padding: 17px;
+  border: 1px solid #e5ebe6;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.dosing-order-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dosing-order-label {
+  color: #849087;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.dosing-order-heading h3 {
+  margin: 4px 0 0;
+  color: #344139;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.dosing-order-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.dosing-order-details > div:first-child {
+  grid-column: 1 / -1;
+}
+
+.dosing-order-details dt {
+  margin-bottom: 4px;
+  color: #849087;
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.dosing-order-details dd {
+  margin: 0;
+  color: #344139;
+  font-size: 12px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.dosing-order-action {
+  justify-self: end;
+}
+
+@media (max-width: 600px) {
+  .dosing-orders-search {
+    padding: 12px 14px;
+  }
+
+  .dosing-tabs {
+    padding: 0 14px 12px;
+  }
+
+  .dosing-tab {
+    flex: 1 1 auto;
+  }
+
+  .dosing-orders-grid {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 14px;
+  }
+
+  .dosing-order-action {
+    width: 100%;
+  }
+}

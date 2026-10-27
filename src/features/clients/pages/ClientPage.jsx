@@ -1,144 +1,151 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import EmptyState from '../../../components/feedback/EmptyState.jsx'
-import Toast from '../../../components/feedback/Toast.jsx'
-import PageHeading from '../../../components/ui/PageHeading.jsx'
-import ClientFilters from '../components/ClientFilters.jsx'
-import ClientForm from '../components/ClientForm.jsx'
-import ClientTable from '../components/ClientTable.jsx'
-import DeleteClientModal from '../components/DeleteClientModal.jsx'
+import { useCallback, useEffect, useMemo, useState } from "react";
+import EmptyState from "../../../components/feedback/EmptyState.jsx";
+import Toast from "../../../components/feedback/Toast.jsx";
+import PageHeading from "../../../components/ui/PageHeading.jsx";
+import ClientFilters from "../components/ClientFilters.jsx";
+import ClientForm from "../components/ClientForm.jsx";
+import ClientTable from "../components/ClientTable.jsx";
+import DeleteClientModal from "../components/DeleteClientModal.jsx";
 import {
   createClient,
   deleteClient,
   getClients,
   updateClient,
-} from '../services/clientsApi.js'
+} from "../services/clientsApi.js";
 
 function ClientPage() {
-  const [clients, setClients] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [search, setSearch] = useState('')
-  const [formOpen, setFormOpen] = useState(false)
-  const [editingClient, setEditingClient] = useState(null)
-  const [formError, setFormError] = useState(null)
-  const [saving, setSaving] = useState(false)
-  const [clientToDelete, setClientToDelete] = useState(null)
-  const [deleteError, setDeleteError] = useState(null)
-  const [deletingId, setDeletingId] = useState(null)
-  const [toast, setToast] = useState(null)
+  const [clients, setClients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [search, setSearch] = useState("");
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingClient, setEditingClient] = useState(null);
+  const [formError, setFormError] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [clientToDelete, setClientToDelete] = useState(null);
+  const [deleteError, setDeleteError] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+  const [toast, setToast] = useState(null);
 
-  const dismissToast = useCallback(() => setToast(null), [])
+  const dismissToast = useCallback(() => setToast(null), []);
 
   const fetchClients = useCallback(async () => {
     try {
-      const data = await getClients()
-      setClients(data)
-      setError(null)
+      const data = await getClients();
+      setClients(data);
+      setError(null);
     } catch (err) {
-      console.error('Error al cargar clientes:', err)
-      setError(err.message)
+      console.error("Error al cargar clientes:", err);
+      setError(err.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    let isCurrent = true
+    let isCurrent = true;
 
     getClients()
       .then((data) => {
-        if (isCurrent) setClients(data)
+        if (isCurrent) setClients(data);
       })
       .catch((err) => {
-        console.error('Error al cargar clientes:', err)
-        if (isCurrent) setError(err.message)
+        console.error("Error al cargar clientes:", err);
+        if (isCurrent) setError(err.message);
       })
       .finally(() => {
-        if (isCurrent) setLoading(false)
-      })
+        if (isCurrent) setLoading(false);
+      });
 
     return () => {
-      isCurrent = false
-    }
-  }, [])
+      isCurrent = false;
+    };
+  }, []);
 
   const filteredClients = useMemo(() => {
-    const normalizedSearch = search.trim().toLocaleLowerCase()
+    const normalizedSearch = search.trim().toLocaleLowerCase();
 
     return clients.filter((client) =>
-      [client.name, client.nit, client.email, client.phone]
-        .some((value) => String(value ?? '').toLocaleLowerCase().includes(normalizedSearch)),
-    )
-  }, [clients, search])
+      [client.name, client.nit, client.email, client.phone].some((value) =>
+        String(value ?? "")
+          .toLocaleLowerCase()
+          .includes(normalizedSearch),
+      ),
+    );
+  }, [clients, search]);
 
   async function handleSaveClient(formData) {
-    setSaving(true)
-    setFormError(null)
-    setToast(null)
+    setSaving(true);
+    setFormError(null);
+    setToast(null);
 
     try {
-      const wasEditing = Boolean(editingClient)
+      const wasEditing = Boolean(editingClient);
       if (editingClient) {
-        await updateClient(editingClient.id, formData)
+        await updateClient(editingClient.id, formData);
       } else {
-        await createClient(formData)
+        await createClient(formData);
       }
-      setFormOpen(false)
-      setEditingClient(null)
-      setLoading(true)
-      await fetchClients()
+      setFormOpen(false);
+      setEditingClient(null);
+      setLoading(true);
+      await fetchClients();
       setToast({
-        type: 'success',
-        message: wasEditing ? 'Cliente actualizado correctamente.' : 'Cliente creado correctamente.',
-      })
+        type: "success",
+        message: wasEditing
+          ? "Cliente actualizado correctamente."
+          : "Cliente creado correctamente.",
+      });
     } catch (err) {
-      console.error('Error al guardar cliente:', err)
-      setFormError(err.message)
+      console.error("Error al guardar cliente:", err);
+      setFormError(err.message);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
   }
 
   function openCreateForm() {
-    setEditingClient(null)
-    setFormError(null)
-    setFormOpen(true)
+    setEditingClient(null);
+    setFormError(null);
+    setFormOpen(true);
   }
 
   function openEditForm(client) {
-    setEditingClient(client)
-    setFormError(null)
-    setFormOpen(true)
+    setEditingClient(client);
+    setFormError(null);
+    setFormOpen(true);
   }
 
   async function handleDeleteClient() {
-    if (!clientToDelete) return
-    const client = clientToDelete
+    if (!clientToDelete) return;
+    const client = clientToDelete;
 
-    setDeletingId(client.id)
-    setDeleteError(null)
-    setToast(null)
+    setDeletingId(client.id);
+    setDeleteError(null);
+    setToast(null);
 
     try {
-      await deleteClient(client.id)
+      await deleteClient(client.id);
       setClients((currentClients) =>
-        currentClients.filter((currentClient) => currentClient.id !== client.id),
-      )
-      setClientToDelete(null)
+        currentClients.filter(
+          (currentClient) => currentClient.id !== client.id,
+        ),
+      );
+      setClientToDelete(null);
       setToast({
-        type: 'success',
+        type: "success",
         message: `Cliente "${client.name}" eliminado correctamente.`,
-      })
+      });
     } catch (err) {
-      console.error('Error al eliminar cliente:', err)
-      const message = `No se pudo eliminar a "${client.name}". ${err.message}`
-      setDeleteError(message)
+      console.error("Error al eliminar cliente:", err);
+      const message = `No se pudo eliminar a "${client.name}". ${err.message}`;
+      setDeleteError(message);
       setToast({
-        type: 'warning',
+        type: "warning",
         message: `${message} Verifica si esta asociado a otros registros e intentalo de nuevo.`,
-      })
+      });
     } finally {
-      setDeletingId(null)
+      setDeletingId(null);
     }
   }
 
@@ -155,9 +162,15 @@ function ClientPage() {
         <div className="panel-heading provider-panel-heading">
           <div>
             <h2>Clientes registrados</h2>
-            <p>{filteredClients.length} de {clients.length} clientes</p>
+            <p>
+              {filteredClients.length} de {clients.length} clientes
+            </p>
           </div>
-          <button className="btn-primary" onClick={openCreateForm} type="button">
+          <button
+            className="btn-primary"
+            onClick={openCreateForm}
+            type="button"
+          >
             + Nuevo cliente
           </button>
         </div>
@@ -168,9 +181,9 @@ function ClientPage() {
             <button
               className="btn-secondary"
               onClick={() => {
-                setLoading(true)
-                setError(null)
-                fetchClients()
+                setLoading(true);
+                setError(null);
+                fetchClients();
               }}
               type="button"
             >
@@ -178,7 +191,9 @@ function ClientPage() {
             </button>
           </div>
         ) : loading ? (
-          <p className="feature-loading" role="status">Cargando clientes...</p>
+          <p className="feature-loading" role="status">
+            Cargando clientes...
+          </p>
         ) : clients.length === 0 ? (
           <EmptyState
             title="Aun no hay clientes"
@@ -191,8 +206,8 @@ function ClientPage() {
               deletingId={deletingId}
               items={filteredClients}
               onDelete={(client) => {
-                setClientToDelete(client)
-                setDeleteError(null)
+                setClientToDelete(client);
+                setDeleteError(null);
               }}
               onEdit={openEditForm}
             />
@@ -202,13 +217,13 @@ function ClientPage() {
 
       {formOpen && (
         <ClientForm
-          key={editingClient?.id ?? 'new-client'}
+          key={editingClient?.id ?? "new-client"}
           error={formError}
           initialValues={editingClient}
           onCancel={() => {
-            setFormOpen(false)
-            setEditingClient(null)
-            setFormError(null)
+            setFormOpen(false);
+            setEditingClient(null);
+            setFormError(null);
           }}
           onSubmit={handleSaveClient}
           submitting={saving}
@@ -222,8 +237,8 @@ function ClientPage() {
           error={deleteError}
           onCancel={() => {
             if (deletingId === null) {
-              setClientToDelete(null)
-              setDeleteError(null)
+              setClientToDelete(null);
+              setDeleteError(null);
             }
           }}
           onConfirm={handleDeleteClient}
@@ -232,13 +247,13 @@ function ClientPage() {
 
       <Toast
         duration={4500}
-        key={toast?.message ?? 'empty-client-toast'}
+        key={toast?.message ?? "empty-client-toast"}
         message={toast?.message}
         onClose={dismissToast}
-        type={toast?.type ?? 'success'}
+        type={toast?.type ?? "success"}
       />
     </>
-  )
+  );
 }
 
-export default ClientPage
+export default ClientPage;
